@@ -187,6 +187,7 @@ const jsonLd =
         document.querySelectorAll('#toc-affix').forEach((el) => {
           if (!el.closest('#swup-container')) el.remove()
         })
+        document.querySelectorAll('body > #toc-modal').forEach((el) => el.remove())
         syncNavState()
       })
       document.addEventListener('astro:page-load', () => syncNavState())

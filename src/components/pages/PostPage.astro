@@ -545,7 +545,9 @@ const postYear = post.data.published.getFullYear()
   function initPage() {
     postBody = document.querySelector<HTMLElement>('.post-content')
     activeHeading = ''
+    document.querySelectorAll('body > #toc-modal').forEach((el) => el.remove())
     tocModal = document.getElementById('toc-modal')
+    if (tocModal) document.body.appendChild(tocModal)
 
     const tocFab = document.getElementById('toc-fab')
     if (tocFab && !tocFab.dataset.bound) {
