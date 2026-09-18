@@ -265,14 +265,17 @@ html.is-theme-transitioning *::after {
 }
 
 .transition-swup-fade {
-  transition: opacity 0.12s ease-out;
+  opacity: 1;
   will-change: opacity;
+  transition: opacity 0.32s cubic-bezier(0.22, 1, 0.36, 1);
 }
 html.is-animating .transition-swup-fade {
   opacity: 0;
+  transition: opacity 0.16s ease-in;
 }
-html.is-leaving .transition-swup-fade {
-  transition-duration: 0.06s;
+html.is-changing:not(.is-animating) .transition-swup-fade {
+  opacity: 1;
+  transition: opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 body > .swup-progress-bar {
   top: 0;
