@@ -160,10 +160,9 @@ a:hover {
 html.is-theme-transitioning *,
 html.is-theme-transitioning *::before,
 html.is-theme-transitioning *::after {
-  /* biome-ignore lint/complexity/noImportantStyles: 主题切换瞬间必须强制覆盖全站过渡/动画 */
+  /* biome-ignore lint/complexity/noImportantStyles: 主题切换瞬间必须强制覆盖全站过渡，防止颜色渐变与 VT 快照叠加 */
   transition: none !important;
-  /* biome-ignore lint/complexity/noImportantStyles: 300ms 后由 JS 移除该类 */
-  animation: none !important;
+  /* 注意：这里不能禁 animation —— animation-name 被置为 none 再恢复会取消并重建动画，导致入口动画（如友链卡片 friend-card-in）在切换结束后重播抖动 */
 }
 
 /* 主题切换触点扩散（View Transitions）：关闭默认交叉淡入，由 JS 对新快照做 clip-path 圆形扩散；旧快照垫底显示未扩散区域 */
