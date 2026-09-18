@@ -62,6 +62,7 @@ function viewTransitionTheme(mode: 'light' | 'dark', origin: HTMLElement): boole
   if (typeof doc.startViewTransition !== 'function') return false
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false
 
+  const isMobile = window.matchMedia('(max-width: 768px)').matches
   const rect = origin.getBoundingClientRect()
   const x = rect.left + rect.width / 2
   const y = rect.top + rect.height / 2
@@ -77,6 +78,7 @@ function viewTransitionTheme(mode: 'light' | 'dark', origin: HTMLElement): boole
   })
   vt.ready
     .then(() => {
+      if (isMobile) return
       root.animate(
         { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
         { duration: 500, easing: 'ease-in-out', pseudoElement: '::view-transition-new(root)' },

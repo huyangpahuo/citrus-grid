@@ -173,6 +173,32 @@ html.is-theme-transitioning *::after {
   mix-blend-mode: normal;
 }
 
+/* 移动端主题切换：新快照自底部划入，旧快照淡出（JS 跳过圆形扩散，由这里的媒体查询接管） */
+@keyframes vt-theme-slide-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes vt-theme-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@media (max-width: 768px) {
+  ::view-transition-old(root) {
+    animation: vt-theme-fade-out 500ms ease-in-out both;
+  }
+  ::view-transition-new(root) {
+    animation: vt-theme-slide-in 500ms ease-in-out both;
+  }
+}
+
 .profile-card .card,
 .toc-affix {
   contain: layout style;
