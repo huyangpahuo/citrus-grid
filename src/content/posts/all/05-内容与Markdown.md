@@ -542,13 +542,17 @@ function normalizeLanguage(raw) {
 | `TOC_SNAP_RANGE` | `80` | 「吸附」范围：标题进入 `[threshold, threshold+80]` 区间时优先选中 |
 | `tocScrollDelta` 的 `pad` | `12` | 侧栏自动滚动时距边缘的留白 |
 | 侧栏宽度 | `.toc-affix` 的 `w-52` | `13rem` |
-| 侧栏左偏移 | `PostPage.css` 的 `left: calc(50% + 26rem)` | 与 `max-w-[800px]` 内容区对齐（800/2 = 400px = 25rem，+1rem 间隙） |
+| 侧栏左偏移 | `PostPage.css` 的 `left: calc(50% + 26rem)` | 贴住玻璃卡片右缘：外框 `max-w-[832px]` 的一半 = 416px = 26rem |
 | 侧栏顶部 | `.toc-affix { top: 96px }` | — |
 | 侧栏最大高度 | `max-height: calc(100vh - 190px)` | — |
 
 > 改内容区宽度要同步 TOC
 >
-> `BaseLayout` 的 `<main class="max-w-[800px]">` 与 `PostPage.css` 的 `left: calc(50% + 26rem)` 是耦合的。若把内容区改成 900px，侧栏位置需要相应改为 `calc(50% + 29rem)` 左右。
+> `BaseLayout` 的 `<main class="max-w-[832px]">` 与 `PostPage.css` 的 `left: calc(50% + 26rem)` 是耦合的。`832px` 是玻璃卡片外框宽度（正文内容 800px + 左右 `px-4` 各 16px ），而 `26rem = 416px = 832 / 2`——侧栏是 `fixed` 定位，`50%` 从视口中线起算，偏移半个外框宽度即贴住卡片右缘。
+>
+> 换算公式：内容宽改为 `W` 时，外框 = `W + 32`，侧栏偏移 = `calc(50% + (W + 32) / 2 px)`。例如内容 900px → 外框 932px → 偏移 466px ≈ `calc(50% + 29rem)`。
+>
+> 参考 [03-主题与样式定制.md#53-常用排版参数调整位置](03-主题与样式定制.md#53-常用排版参数调整位置)
 
 ### 9.4 高亮与滚动逻辑
 
