@@ -565,6 +565,8 @@ function normalizeLanguage(raw) {
 | 点击跳转 | 拦截 `a.toc-link` 点击 → `smoothScrollToHeading()` → `history.replaceState` 更新 hash → 关闭移动端弹窗 |
 | 锚点容错 | `findAnchorTarget(id)` 依次尝试：原始 id → `decodeURIComponent(id)` → `encodeURIComponent(id)` |
 
+> 上表「点击跳转」只针对同页目录链接。跨页面的锚点链接（如 markdown 相对链接带 `#`）由 `BaseLayout` 的点击委托接管：SPA 导航到页顶 → 加载后按同样的 80px 偏移平滑滚动（含直接打开 `#` 深链接场景），详见 [07-页面与路由.md#84](./07-页面与路由.md#84-跨页锚点链接的平滑跳转)。
+
 ## 10. 内容创作完整流程示例
 
 ```bash
