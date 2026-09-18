@@ -31,19 +31,62 @@ export const resolvedTheme = { get: () => resolve(themeMode.get()) }
 
 let transitionTimer = 0
 
-function applyTheme(mode: 'light' | 'dark', animate = true) {
-  if (typeof document === 'undefined') return
+function setThemeClasses(mode: 'light' | 'dark') {
   const root = document.documentElement
   const changed = root.classList.contains('dark') !== (mode === 'dark')
   root.classList.toggle('dark', mode === 'dark')
   root.style.colorScheme = mode
+  syncThemeButtons(mode)
+  document.dispatchEvent(new CustomEvent('theme-change', { detail: mode }))
+  return changed
+}
+
+function applyTheme(mode: 'light' | 'dark', animate = true) {
+  if (typeof document === 'undefined') return
+  const changed = setThemeClasses(mode)
   if (animate && changed) {
+    const root = document.documentElement
     root.classList.add('is-theme-transitioning')
     clearTimeout(transitionTimer)
     transitionTimer = window.setTimeout(() => root.classList.remove('is-theme-transitioning'), 300)
   }
-  syncThemeButtons(mode)
-  document.dispatchEvent(new CustomEvent('theme-change', { detail: mode }))
+}
+
+function viewTransitionTheme(mode: 'light' | 'dark', origin: HTMLElement): boolean {
+  const doc = document as Document & {
+    startViewTransition?: (cb: () => void) => {
+      ready: Promise<void>
+      finished: Promise<void>
+    }
+  }
+  if (typeof doc.startViewTransition !== 'function') return false
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false
+
+  const rect = origin.getBoundingClientRect()
+  const x = rect.left + rect.width / 2
+  const y = rect.top + rect.height / 2
+  const radius = Math.hypot(
+    Math.max(x, window.innerWidth - x),
+    Math.max(y, window.innerHeight - y),
+  )
+
+  const root = document.documentElement
+  root.classList.add('is-theme-transitioning')
+  const vt = doc.startViewTransition(() => {
+    setThemeClasses(mode)
+  })
+  vt.ready
+    .then(() => {
+      root.animate(
+        { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+        { duration: 500, easing: 'ease-in-out', pseudoElement: '::view-transition-new(root)' },
+      )
+    })
+    .catch(() => {})
+  vt.finished
+    .finally(() => root.classList.remove('is-theme-transitioning'))
+    .catch(() => {})
+  return true
 }
 
 function syncThemeButtons(mode: 'light' | 'dark') {
@@ -55,8 +98,11 @@ function syncThemeButtons(mode: 'light' | 'dark') {
   })
 }
 
-export function toggleTheme() {
-  themeMode.set(resolvedTheme.get() === 'dark' ? 'light' : 'dark')
+export function toggleTheme(origin?: HTMLElement | null) {
+  const next: 'light' | 'dark' = resolvedTheme.get() === 'dark' ? 'light' : 'dark'
+  if (typeof localStorage !== 'undefined') localStorage.setItem('themeMode', next)
+  if (origin && viewTransitionTheme(next, origin)) return
+  applyTheme(next)
 }
 
 let initialized = false
@@ -75,9 +121,10 @@ export function initTheme() {
 
   document.addEventListener('click', (e) => {
     const target = e.target as HTMLElement
-    if (target.closest('[data-theme-toggle]')) {
+    const btn = target.closest<HTMLElement>('[data-theme-toggle]')
+    if (btn) {
       e.preventDefault()
-      toggleTheme()
+      toggleTheme(btn)
     }
   })
 }

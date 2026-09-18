@@ -166,6 +166,13 @@ html.is-theme-transitioning *::after {
   animation: none !important;
 }
 
+/* 主题切换触点扩散（View Transitions）：关闭默认交叉淡入，由 JS 对新快照做 clip-path 圆形扩散；旧快照垫底显示未扩散区域 */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
 .profile-card .card,
 .toc-affix {
   contain: layout style;
