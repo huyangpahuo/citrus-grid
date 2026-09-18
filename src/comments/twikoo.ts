@@ -78,7 +78,8 @@ function loadScript(): Promise<void> {
         cachedStyleHTML = Array.from(stylesAfter).filter((html) => !stylesBefore.has(html))
         resolve()
       }
-      script.onerror = () => reject(new Error(`[comments] twikoo 脚本加载失败：${config.scriptSrc}`))
+      script.onerror = () =>
+        reject(new Error(`[comments] twikoo 脚本加载失败：${config.scriptSrc}`))
       document.head.appendChild(script)
     }).catch((err) => {
       // 加载失败不缓存，允许下次挂载（如换页、网络恢复后）重新尝试

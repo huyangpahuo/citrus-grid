@@ -66,10 +66,7 @@ function viewTransitionTheme(mode: 'light' | 'dark', origin: HTMLElement): boole
   const rect = origin.getBoundingClientRect()
   const x = rect.left + rect.width / 2
   const y = rect.top + rect.height / 2
-  const radius = Math.hypot(
-    Math.max(x, window.innerWidth - x),
-    Math.max(y, window.innerHeight - y),
-  )
+  const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y))
 
   const root = document.documentElement
   root.classList.add('is-theme-transitioning')
@@ -85,9 +82,7 @@ function viewTransitionTheme(mode: 'light' | 'dark', origin: HTMLElement): boole
       )
     })
     .catch(() => {})
-  vt.finished
-    .finally(() => root.classList.remove('is-theme-transitioning'))
-    .catch(() => {})
+  vt.finished.finally(() => root.classList.remove('is-theme-transitioning')).catch(() => {})
   return true
 }
 
