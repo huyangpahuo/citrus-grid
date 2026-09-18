@@ -1,7 +1,7 @@
 ---
 import Icon from '@/components/Icon.astro'
 import { defaultLang, type Lang, localePath, useTranslations } from '@/i18n/ui'
-import { mdiFolderOutline, mdiMagnify } from '@/lib/icons'
+import { mdiCloseCircle, mdiFolderOutline, mdiMagnify } from '@/lib/icons'
 import type { NameCount } from '@/lib/posts'
 
 interface Props {
@@ -28,6 +28,15 @@ const t = useTranslations(lang)
         placeholder={t('categories.searchPlaceholder')}
         class="w-full bg-transparent text-sm text-ink outline-none placeholder:text-ink-3"
       />
+      <button
+        id="category-clear"
+        type="button"
+        class="hidden cursor-pointer text-ink-3 transition hover:text-ink"
+        aria-label={t('misc.clear')}
+        title={t('misc.clear')}
+      >
+        <Icon d={mdiCloseCircle} class="text-sm" />
+      </button>
     </div>
     <div class="flex items-center gap-1">
       <button
@@ -72,9 +81,11 @@ const t = useTranslations(lang)
     )
   }
 
+  <div id="categories-empty" class="mt-16 hidden text-center text-[0.95rem] text-ink-3">{t('categories.empty')}</div>
+
   {
     categories.length > 0 && (
-      <div class="mt-6 text-center text-sm text-ink-3">
+      <div id="categories-total" class="mt-6 text-center text-sm text-ink-3" data-template={t('categories.total')}>
         {t('categories.total', { n: categories.length })}
       </div>
     )
@@ -89,9 +100,12 @@ const t = useTranslations(lang)
     const root = document.getElementById('categories')
     if (!root) return
     const searchInput = root.querySelector<HTMLInputElement>('#category-search')
+    const clearBtn = root.querySelector<HTMLButtonElement>('#category-clear')
     const list = root.querySelector<HTMLElement>('#category-list')
     const rows = Array.from(list?.querySelectorAll<HTMLElement>('.category-row') ?? [])
     const sortBtns = Array.from(root.querySelectorAll<HTMLButtonElement>('.sort-btn'))
+    const emptyEl = root.querySelector<HTMLElement>('#categories-empty')
+    const totalEl = root.querySelector<HTMLElement>('#categories-total')
 
     let sortBy: 'name' | 'count' = categoriesSort.get()
 
@@ -110,6 +124,9 @@ const t = useTranslations(lang)
         row.style.display = ''
         list.appendChild(row)
       }
+      clearBtn?.classList.toggle('hidden', !q)
+      if (emptyEl) emptyEl.classList.toggle('hidden', filtered.length > 0)
+      if (totalEl) totalEl.textContent = (totalEl.dataset.template || '').replace('{n}', String(filtered.length))
       for (const btn of sortBtns) {
         const active = btn.dataset.sort === sortBy
         btn.classList.toggle('bg-accent', active)
@@ -122,6 +139,12 @@ const t = useTranslations(lang)
     }
 
     searchInput?.addEventListener('input', render)
+    clearBtn?.addEventListener('click', () => {
+      if (!searchInput) return
+      searchInput.value = ''
+      render()
+      searchInput.focus()
+    })
     for (const btn of sortBtns) {
       btn.addEventListener('click', () => {
         sortBy = (btn.dataset.sort as 'name' | 'count') || 'count'

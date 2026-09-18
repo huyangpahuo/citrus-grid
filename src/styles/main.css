@@ -263,6 +263,30 @@ html.is-theme-transitioning *::after {
 .wp-drawer-panel-left {
   animation: wp-slide-in-left 0.22s ease-out;
 }
+@keyframes wp-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes wp-pop-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+.wp-overlay.wp-closing {
+  animation: wp-fade-out 0.16s ease-in forwards;
+}
+.wp-modal-panel.wp-closing {
+  animation: wp-pop-out 0.16s ease-in forwards;
+}
 
 .transition-swup-fade {
   opacity: 1;

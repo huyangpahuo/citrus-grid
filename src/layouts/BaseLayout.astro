@@ -103,6 +103,12 @@ const jsonLd =
         document.dispatchEvent(new Event('astro:page-load'))
       })
     </script>
+    <script is:inline>
+      if (location.hash) {
+        window.__pendingScrollHash = location.hash.slice(1)
+        history.replaceState(history.state, '', location.pathname + location.search)
+      }
+    </script>
   </head>
   <body>
     <div class="flex min-h-screen flex-col">
@@ -141,6 +147,17 @@ const jsonLd =
       }
       document.addEventListener('astro:after-swap', syncTocFab)
       document.addEventListener('astro:page-load', syncTocFab)
+
+      const backTopBtn = document.querySelector<HTMLElement>('[data-backtop]')
+      const BACK_TOP_THRESHOLD = 320
+      const syncBackTop = () => {
+        if (!backTopBtn) return
+        backTopBtn.classList.toggle('is-visible', window.scrollY > BACK_TOP_THRESHOLD)
+      }
+      if (backTopBtn) {
+        window.addEventListener('scroll', syncBackTop, { passive: true })
+        syncBackTop()
+      }
 
       initTheme()
 
@@ -191,6 +208,49 @@ const jsonLd =
         syncNavState()
       })
       document.addEventListener('astro:page-load', () => syncNavState())
+
+      const HEADING_SCROLL_OFFSET = 80
+      function smoothScrollToHeadingAnchor(id: string) {
+        let el = document.getElementById(id)
+        if (!el) {
+          try {
+            el = document.getElementById(decodeURIComponent(id))
+          } catch {}
+        }
+        if (!el) return
+        const top = el.getBoundingClientRect().top + window.scrollY - HEADING_SCROLL_OFFSET
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        window.scrollTo({ top, behavior: reduce ? 'auto' : 'smooth' })
+      }
+      function consumePendingScrollHash() {
+        const pending = (window as any).__pendingScrollHash as string | undefined
+        if (!pending) return
+        ;(window as any).__pendingScrollHash = null
+        history.replaceState(history.state, '', `${window.location.pathname}#${pending}`)
+        window.setTimeout(() => smoothScrollToHeadingAnchor(pending), 120)
+      }
+      document.addEventListener('astro:page-load', consumePendingScrollHash)
+
+      document.addEventListener('click', (e) => {
+        const link = (e.target as HTMLElement)?.closest<HTMLAnchorElement>('a')
+        if (!link || link.hasAttribute('data-no-swup')) return
+        const raw = link.getAttribute('href') || ''
+        let url: URL
+        try {
+          url = new URL(raw, window.location.href)
+        } catch {
+          return
+        }
+        if (url.origin !== window.location.origin || !url.hash) return
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
+        const stripSlash = (p: string) => p.replace(/\/+$/, '') || '/'
+        if (stripSlash(url.pathname) === stripSlash(window.location.pathname)) return
+        e.preventDefault()
+        ;(window as any).__pendingScrollHash = url.hash.slice(1)
+        const swup = (window as any).swup
+        if (swup?.navigate) swup.navigate(`${url.origin}${url.pathname}${url.search}`)
+        else window.location.assign(raw)
+      })
 
       document.addEventListener('click', (e) => {
         const target = e.target as HTMLElement

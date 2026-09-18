@@ -113,7 +113,8 @@
   "misc": {
     "sortByName": "名前順",
     "sortByCount": "件数順",
-    "backToTop": "トップへ戻る"
+    "backToTop": "トップへ戻る",
+    "clear": "クリア"
   },
   "player": {
     "title": "ミュージックプレイヤー",

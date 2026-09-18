@@ -113,7 +113,8 @@
   "misc": {
     "sortByName": "按名称",
     "sortByCount": "按数量",
-    "backToTop": "回到顶部"
+    "backToTop": "回到顶部",
+    "clear": "清空"
   },
   "player": {
     "title": "音乐播放器",

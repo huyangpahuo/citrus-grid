@@ -432,9 +432,12 @@ const postYear = post.data.published.getFullYear()
   })
 
   let tocModal: HTMLElement | null = null
+  let tocCloseTimer: number | undefined
 
   function openTocModal() {
     if (!tocModal) return
+    window.clearTimeout(tocCloseTimer)
+    tocModal.classList.remove('wp-closing')
     tocModal.classList.remove('hidden')
     tocModal.classList.add('flex')
     requestAnimationFrame(() => {
@@ -444,10 +447,18 @@ const postYear = post.data.published.getFullYear()
       if (modalList && active) scrollTocListToActive(modalList, active)
     })
   }
-  function closeTocModal() {
-    if (!tocModal) return
-    tocModal.classList.add('hidden')
-    tocModal.classList.remove('flex')
+  function closeTocModal(animated = true) {
+    if (!tocModal || tocModal.classList.contains('hidden')) return
+    window.clearTimeout(tocCloseTimer)
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const done = () => {
+      if (!tocModal) return
+      tocModal.classList.add('hidden')
+      tocModal.classList.remove('flex', 'wp-closing')
+    }
+    if (!animated || reduce) return done()
+    tocModal.classList.add('wp-closing')
+    tocCloseTimer = window.setTimeout(done, 160)
   }
 
   async function initPhotoswipe() {
@@ -554,7 +565,7 @@ const postYear = post.data.published.getFullYear()
       tocFab.dataset.bound = '1'
       tocFab.addEventListener('click', openTocModal)
     }
-    document.getElementById('toc-close')?.addEventListener('click', closeTocModal)
+    document.getElementById('toc-close')?.addEventListener('click', () => closeTocModal())
     tocModal?.addEventListener('click', (e) => {
       if (e.target === tocModal) closeTocModal()
     })

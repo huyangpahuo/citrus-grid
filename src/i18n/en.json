@@ -113,7 +113,8 @@
   "misc": {
     "sortByName": "By name",
     "sortByCount": "By count",
-    "backToTop": "Back to top"
+    "backToTop": "Back to top",
+    "clear": "Clear"
   },
   "player": {
     "title": "Music Player",

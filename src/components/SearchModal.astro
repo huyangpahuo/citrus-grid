@@ -52,6 +52,7 @@ const t = useTranslations(lang)
 
   let pagefind: any = null
   let searchSeq = 0
+  let closeTimer: number | undefined
 
   function escapeHtml(value: string) {
     return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
@@ -112,6 +113,8 @@ const t = useTranslations(lang)
   }
 
   function open() {
+    window.clearTimeout(closeTimer)
+    modal.classList.remove('wp-closing')
     modal.classList.remove('hidden')
     modal.classList.add('flex')
     input.value = ''
@@ -121,13 +124,21 @@ const t = useTranslations(lang)
     loadPagefind()
   }
 
-  function close() {
-    modal.classList.add('hidden')
-    modal.classList.remove('flex')
+  function close(animated = true) {
+    if (modal.classList.contains('hidden')) return
+    window.clearTimeout(closeTimer)
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const done = () => {
+      modal.classList.add('hidden')
+      modal.classList.remove('flex', 'wp-closing')
+    }
+    if (!animated || reduce) return done()
+    modal.classList.add('wp-closing')
+    closeTimer = window.setTimeout(done, 160)
   }
 
   function go(url: string) {
-    close()
+    close(false)
     const swup = (window as any).swup
     if (swup?.navigate) {
       swup.navigate(url)
@@ -137,11 +148,11 @@ const t = useTranslations(lang)
   }
 
   document.addEventListener('open-search', open)
-  document.addEventListener('astro:after-swap', close)
+  document.addEventListener('astro:after-swap', () => close(false))
   document.addEventListener('keydown', (e: KeyboardEvent) => {
     if (e.key === 'Escape') close()
   })
-  document.getElementById('search-close')!.addEventListener('click', close)
+  document.getElementById('search-close')!.addEventListener('click', () => close())
   modal.addEventListener('click', (e) => {
     if (e.target === modal) close()
   })
