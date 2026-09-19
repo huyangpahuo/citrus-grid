@@ -80,6 +80,19 @@
   font-size: 0.9rem;
 }
 
+[data-music-panel] {
+  transform: translateX(calc(100% + 60px));
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+[data-music-panel].music-panel-in {
+  transform: translateX(0);
+}
+[data-music-panel].music-panel-out {
+  transform: translateX(calc(100% + 60px));
+  transition: transform 0.16s ease-in;
+}
+
 .music-panel-head {
   display: grid;
   grid-template-rows: 0fr;
@@ -467,5 +480,10 @@
   }
   .music-playlist-list {
     max-height: 40vh;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-music-panel] {
+    transition: none;
   }
 }

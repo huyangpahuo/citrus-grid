@@ -148,18 +148,36 @@ const jsonLd =
       document.addEventListener('astro:after-swap', syncTocFab)
       document.addEventListener('astro:page-load', syncTocFab)
 
-      const backTopBtn = document.querySelector<HTMLElement>('[data-backtop]')
-      const BACK_TOP_THRESHOLD = 320
-      const syncBackTop = () => {
-        if (!backTopBtn) return
-        backTopBtn.classList.toggle('is-visible', window.scrollY > BACK_TOP_THRESHOLD)
-      }
-      if (backTopBtn) {
-        window.addEventListener('scroll', syncBackTop, { passive: true })
-        syncBackTop()
-      }
-
       initTheme()
+
+      const scrollControlNav = document.querySelector<HTMLElement>('.scroll-control-nav')
+      const setSideMenuOpen = (open: boolean) => {
+        if (!scrollControlNav) return
+        scrollControlNav.classList.toggle('is-open', open)
+        scrollControlNav
+          .querySelector<HTMLElement>('[data-scroll-menu]')
+          ?.setAttribute('aria-expanded', open ? 'true' : 'false')
+      }
+      document.addEventListener('astro:before-swap', () => setSideMenuOpen(false))
+
+      // 滚动时自动收起整合菜单
+      window.addEventListener(
+        'scroll',
+        () => {
+          if (scrollControlNav?.classList.contains('is-open')) setSideMenuOpen(false)
+        },
+        { passive: true },
+      )
+      document.addEventListener('pointerdown', (e) => {
+        if (!scrollControlNav?.classList.contains('is-open')) return
+        if (!scrollControlNav.contains(e.target as Node)) setSideMenuOpen(false)
+      })
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') setSideMenuOpen(false)
+      })
+      document
+        .querySelector<HTMLElement>('.scroll-control-pop')
+        ?.addEventListener('click', () => setSideMenuOpen(false))
 
       function syncNavState(path: string = window.location.pathname) {
         const current = path
@@ -257,6 +275,10 @@ const jsonLd =
         const backBtn = target.closest('[data-backtop]')
         if (backBtn) {
           window.scrollTo({ top: 0, behavior: 'smooth' })
+        }
+        const menuBtn = target.closest('[data-scroll-menu]')
+        if (menuBtn) {
+          setSideMenuOpen(!scrollControlNav?.classList.contains('is-open'))
         }
         const searchBtn = target.closest('[data-open-search]')
         if (searchBtn) {

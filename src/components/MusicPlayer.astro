@@ -483,12 +483,48 @@ const ui = {
           cover.removeAttribute('src')
         })
 
+        const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        let panelClosingTimer = 0
+        function applyPanelClosed() {
+          panel.hidden = true
+          panel.classList.remove('music-panel-in', 'music-panel-out')
+        }
         function setExpanded(open: boolean) {
           state.expanded = open
-          panel.hidden = !open
           fab.setAttribute('aria-expanded', open ? 'true' : 'false')
           root.classList.toggle('is-open', open)
-          if (!open) setListOpen(false)
+          if (open) {
+            window.clearTimeout(panelClosingTimer)
+            panel.classList.remove('music-panel-out')
+            panel.hidden = false
+            if (reduceMotion()) {
+              panel.classList.add('music-panel-in')
+            } else {
+              void panel.offsetWidth
+              panel.classList.add('music-panel-in')
+            }
+          } else {
+            setListOpen(false)
+            if (reduceMotion() || !panel.classList.contains('music-panel-in')) {
+              applyPanelClosed()
+              return
+            }
+            panel.classList.remove('music-panel-in')
+            panel.classList.add('music-panel-out')
+            const finalize = () => {
+              if (!panel.classList.contains('music-panel-out')) return
+              window.clearTimeout(panelClosingTimer)
+              applyPanelClosed()
+            }
+            panel.addEventListener(
+              'transitionend',
+              (e) => {
+                if (e.target === panel && e.propertyName === 'transform') finalize()
+              },
+              { once: true },
+            )
+            panelClosingTimer = window.setTimeout(finalize, 400)
+          }
         }
         function setListOpen(open: boolean) {
           state.listOpen = open
@@ -627,20 +663,23 @@ const ui = {
           const nav = document.querySelector<HTMLElement>('.scroll-control-nav')
           const isMobile = window.matchMedia('(max-width: 768px)').matches
           const rightGap = isMobile ? 12 : 20
-          let bottom = isMobile ? 64 : 32
-          if (nav) {
-            const r = nav.getBoundingClientRect()
-            bottom = window.innerHeight - r.bottom + r.height + 8
-          }
+          const bottomSlot = isMobile ? 64 : 32
+
           fab.style.right = `${rightGap}px`
-          fab.style.bottom = `${bottom}px`
+          fab.style.bottom = `${bottomSlot}px`
+
+          const fabSize = fab.getBoundingClientRect().height || 40
+          if (nav) {
+            nav.style.right = `${rightGap}px`
+            nav.style.bottom = `${bottomSlot + fabSize + 8}px`
+          }
 
           const fabWidth = fab.getBoundingClientRect().width || 40
           const panelRight = rightGap + fabWidth + 10
           const limit = `calc(100vw - ${panelRight + 8}px)`
           ;[panel, panelList].forEach((el) => {
             el.style.right = `${panelRight}px`
-            el.style.bottom = `${bottom}px`
+            el.style.bottom = `${bottomSlot}px`
             el.style.maxWidth = limit
           })
           syncScrollbar()
