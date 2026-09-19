@@ -40,3 +40,49 @@
 .dark .toc-link.toc-active {
   background: color-mix(in srgb, var(--wp-accent) 10%, transparent);
 }
+
+.toc-collapse-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition:
+    color 0.2s,
+    background 0.2s;
+}
+.toc-collapse-btn:hover {
+  color: var(--wp-accent);
+  background: var(--wp-surface-hover, color-mix(in srgb, var(--wp-accent) 8%, transparent));
+}
+
+.toc-affix {
+  transition:
+    opacity 0.18s ease,
+    visibility 0.18s;
+}
+
+.toc-expand-fab {
+  position: fixed;
+  z-index: 95;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .post-content.reading-reveal > *:not(.img-frame) {
+    opacity: 0;
+    transform: translateY(14px);
+    transition:
+      opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .post-content.reading-reveal > .reveal-in:not(.img-frame) {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

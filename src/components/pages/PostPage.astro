@@ -10,10 +10,12 @@ import {
   iconSvg,
   mdiAccountOutline,
   mdiCalendarOutline,
+  mdiChevronRight,
   mdiClockOutline,
   mdiClose,
   mdiEye,
   mdiFolderOutline,
+  mdiTableOfContents,
   mdiTextRecognition,
   mdiUpdate,
 } from '@/lib/icons'
@@ -222,8 +224,18 @@ const postYear = post.data.published.getFullYear()
     hasToc && (
       <aside id="toc-affix" class="hidden opacity-0 transition-opacity duration-200 xl:block">
         <div class="toc-affix fixed z-40 w-52">
-          <div class="mb-3 shrink-0 text-[0.78rem] font-semibold tracking-[0.08em] uppercase text-ink-3">
-            {t('post.tableOfContents')}
+          <div class="mb-3 flex shrink-0 items-center justify-between gap-2 text-[0.78rem] font-semibold tracking-[0.08em] uppercase text-ink-3">
+            <span>{t('post.tableOfContents')}</span>
+            <button
+              type="button"
+              id="toc-collapse"
+              class="toc-collapse-btn"
+              title={t('post.collapseToc')}
+              aria-label={t('post.collapseToc')}
+              aria-expanded="true"
+            >
+              <Icon d={mdiChevronRight} class="text-sm" />
+            </button>
           </div>
           <ul class="toc-affix-list m-0 list-none p-0">
             {headings.map((h) => (
@@ -240,6 +252,17 @@ const postYear = post.data.published.getFullYear()
             ))}
           </ul>
         </div>
+        <button
+          type="button"
+          id="toc-expand"
+          class="scroll-control-btn toc-expand-fab"
+          title={t('post.toc')}
+          aria-label={t('post.toc')}
+          aria-expanded="false"
+          hidden
+        >
+          <Icon d={mdiTableOfContents} class="text-lg" />
+        </button>
       </aside>
     )
   }
@@ -553,6 +576,75 @@ const postYear = post.data.published.getFullYear()
     }
   }
 
+  function initReadingReveal() {
+    const body = document.querySelector<HTMLElement>('.post-content')
+    if (!body) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (!('IntersectionObserver' in window)) return
+    const blocks = Array.from(body.children).filter(
+      (el): el is HTMLElement => el instanceof HTMLElement && !el.classList.contains('img-frame'),
+    )
+    if (!blocks.length) return
+    body.classList.add('reading-reveal')
+    const vh = window.innerHeight
+    let stagger = 0
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const t = entry.target as HTMLElement
+          if (entry.isIntersecting) {
+            t.classList.add('reveal-in')
+          } else {
+            t.style.transitionDelay = ''
+            t.classList.remove('reveal-in')
+          }
+        }
+      },
+      { rootMargin: '0px 0px -4% 0px', threshold: 0.01 },
+    )
+    for (const el of blocks) {
+      const top = el.getBoundingClientRect().top
+      if (top < vh * 0.92) {
+        el.style.transitionDelay = `${Math.min(stagger * 70, 480)}ms`
+        stagger++
+      }
+      io.observe(el)
+    }
+  }
+
+  let tocCollapsed = false
+
+  function positionTocExpandFab() {
+    const fab = document.getElementById('toc-expand')
+    if (!fab || fab.hidden) return
+    const menuBtn = document.querySelector<HTMLElement>('.scroll-control-nav [data-scroll-menu]')
+    if (menuBtn) {
+      const rect = menuBtn.getBoundingClientRect()
+      fab.style.right = `${window.innerWidth - rect.right}px`
+      fab.style.bottom = `${window.innerHeight - rect.top + 8}px`
+    } else {
+      const isMobile = window.matchMedia('(max-width: 768px)').matches
+      fab.style.right = `${isMobile ? 12 : 20}px`
+      fab.style.bottom = `${(isMobile ? 64 : 32) + 48}px`
+    }
+  }
+
+  function setTocCollapsed(collapsed: boolean) {
+    tocCollapsed = collapsed
+    const affixEl = document.getElementById('toc-affix')
+    const panel = affixEl?.querySelector<HTMLElement>('.toc-affix')
+    const collapseBtn = document.getElementById('toc-collapse')
+    const expandFab = document.getElementById('toc-expand')
+    if (!panel || !expandFab) return
+    panel.style.opacity = collapsed ? '0' : ''
+    panel.style.visibility = collapsed ? 'hidden' : ''
+    panel.style.pointerEvents = collapsed ? 'none' : ''
+    expandFab.hidden = !collapsed
+    collapseBtn?.setAttribute('aria-expanded', collapsed ? 'false' : 'true')
+    expandFab.setAttribute('aria-expanded', collapsed ? 'true' : 'false')
+    if (collapsed) positionTocExpandFab()
+  }
+
   function initPage() {
     postBody = document.querySelector<HTMLElement>('.post-content')
     activeHeading = ''
@@ -577,6 +669,9 @@ const postYear = post.data.published.getFullYear()
     if (affix) {
       document.body.appendChild(affix)
       window.setTimeout(() => affix.classList.remove('opacity-0'), 150)
+      document.getElementById('toc-collapse')?.addEventListener('click', () => setTocCollapsed(true))
+      document.getElementById('toc-expand')?.addEventListener('click', () => setTocCollapsed(false))
+      setTocCollapsed(tocCollapsed)
     }
 
     if (postBody) {
@@ -599,9 +694,14 @@ const postYear = post.data.published.getFullYear()
 
     scheduleIdle(() => {
       initImageFrames()
+      initReadingReveal()
       initPhotoswipe().catch(() => {})
     })
   }
+
+  window.addEventListener('resize', () => {
+    if (tocCollapsed) positionTocExpandFab()
+  })
 
   onPageLoad(initPage)
 </script>

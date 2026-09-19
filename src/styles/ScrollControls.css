@@ -6,16 +6,16 @@
 
 .scroll-control-pop {
   position: absolute;
-  right: 0;
-  bottom: calc(100% + 8px);
+  right: calc(100% + 8px);
+  bottom: 0;
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+  flex-direction: row;
+  align-items: center;
   gap: 8px;
   opacity: 0;
   visibility: hidden;
-  transform: translateY(6px) scale(0.96);
-  transform-origin: bottom right;
+  transform: translateX(6px) scale(0.96);
+  transform-origin: right center;
   transition:
     opacity 0.16s ease-in,
     transform 0.16s ease-in,
@@ -25,7 +25,7 @@
 .scroll-control-nav.is-open .scroll-control-pop {
   opacity: 1;
   visibility: visible;
-  transform: translateY(0) scale(1);
+  transform: translateX(0) scale(1);
   transition:
     opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1),
     transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
