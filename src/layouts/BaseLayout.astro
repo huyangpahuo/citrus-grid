@@ -240,6 +240,7 @@ const jsonLd =
         const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
         window.scrollTo({ top, behavior: reduce ? 'auto' : 'smooth' })
       }
+      ;(window as any).__scrollToHeadingAnchor = smoothScrollToHeadingAnchor
       function consumePendingScrollHash() {
         const pending = (window as any).__pendingScrollHash as string | undefined
         if (!pending) return

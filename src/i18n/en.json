@@ -18,7 +18,8 @@
     "hint": "Type to start searching",
     "empty": "No matching posts",
     "failed": "Search index unavailable (available after build)",
-    "open": "Search posts"
+    "open": "Search posts",
+    "moreHits": "{n} more matches in this post"
   },
   "post": {
     "uncategorized": "Uncategorized",
