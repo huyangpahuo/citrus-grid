@@ -140,6 +140,8 @@ draft: false
 - [x] コードハイライト（Prism によるビルド時ハイライト、クライアント側 JavaScript ゼロ）とコードコピーボタン
 - [x] 画像ライトボックス（PhotoSwipe）と LQIP グラデーションスケルトンプレースホルダー
 - [x] 閲覧統計（インターフェースは予約済み）
+- [x] 記事内の相対リンク自動自動変換
+- [x] 音楽プレイヤーコンポーネント
 
 ## プラグイン
 
@@ -175,6 +177,12 @@ draft: false
 | [09-常见改造与排错.md](../src/content/posts/all/09-常见改造与排错.md) | 目的別の改造レシピ、FAQ、チェックリスト |
 
 > DeepSeek-V4.1-Flash に基づく検索生成＋手動修正。参考までに。
+
+## 貢献者
+
+<a href="https://github.com/rightdoor/citrus-grid/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=rightdoor/citrus-grid" />
+</a>
 
 ## ライセンス
 

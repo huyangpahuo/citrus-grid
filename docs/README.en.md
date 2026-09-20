@@ -140,6 +140,8 @@ draft: false
 - [x] Code highlighting (Prism build‑time highlighting, zero client‑side JS) and copy button
 - [x] Image lightbox (PhotoSwipe) with LQIP gradient placeholder skeleton
 - [x] Reading statistics (reserved interface)
+- [x] Article relative links auto conversion
+- [x] Music player component
 
 ## Plugins
 
@@ -175,6 +177,12 @@ To customize the theme (change the accent color, adjust the layout, add componen
 | [09-常见改造与排错.md](../src/content/posts/all/09-常见改造与排错.md) | Task-oriented recipes, FAQ, pre-flight checklist |
 
 > Retrieval-generated based on DeepSeek-V4.1-Flash + manually edited; for reference only.
+
+## Contributors
+
+<a href="https://github.com/rightdoor/citrus-grid/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=rightdoor/citrus-grid" />
+</a>
 
 ## License
 
