@@ -17,6 +17,12 @@ function normalizeList(v: string | string[]): string[] {
   return out
 }
 
+function parseDateAsUtc(v: unknown) {
+  if (v === undefined || v === null || v instanceof Date) return v
+  const s = String(v).trim()
+  return new Date(s.includes(' ') ? `${s.replace(' ', 'T')}Z` : `${s}T00:00:00Z`)
+}
+
 const posts = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/posts' }),
   schema: z.object({
@@ -35,8 +41,8 @@ const posts = defineCollection({
       .union([z.string(), z.array(z.string())])
       .default('')
       .transform((v) => normalizeList(v)),
-    published: z.coerce.date(),
-    updated: z.coerce.date().optional(),
+    published: z.preprocess(parseDateAsUtc, z.date()),
+    updated: z.preprocess(parseDateAsUtc, z.date()).optional(),
     draft: z.boolean().default(false),
   }),
 })

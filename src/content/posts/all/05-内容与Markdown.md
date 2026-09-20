@@ -51,8 +51,8 @@ draft: false
 | `description` | `string` | 是 | — | 文章描述。用于 SEO、OG、列表摘要、文章页副标题 | `min(1)` |
 | `category` | `string \| string[]` | 否 | `'未分类'` | 分类。传数组时只取归一化后的第 1 项 | `normalizeList()` 后取首项 |
 | `tags` | `string \| string[]` | 否 | `''` | 标签。字符串按逗号拆分 | `normalizeList()`：trim → 去空 → 按 `toLowerCase()` 去重 |
-| `published` | `Date` | 是 | — | 发布时间，建议格式 `YYYY-MM-DD HH:mm:ss` | `z.coerce.date()`，非法日期报错 |
-| `updated` | `Date` | 否 | — | 更新时间。开启 `autoUpdatePostUpdated` 时由脚本按 mtime 写入 | `z.coerce.date().optional()` |
+| `published` | `Date` | 是 | — | 发布时间，建议格式 `YYYY-MM-DD HH:mm:ss`（无时区字符串按 UTC 解析） | `z.preprocess(parseDateAsUtc, z.date())`，非法日期报错 |
+| `updated` | `Date` | 否 | — | 更新时间。开启 `autoUpdatePostUpdated` 时由脚本按 mtime 写入 | `z.preprocess(parseDateAsUtc, z.date()).optional()` |
 | `draft` | `boolean` | 否 | `false` | 草稿。仅生产构建过滤，dev 下可见 | `boolean().default(false)` |
 
 ### 2.1 `normalizeList()` 的确切行为
@@ -76,15 +76,15 @@ category: [技术, 前端]
 
 ### 2.3 日期格式的坑
 
-`z.coerce.date()` 用 JS `new Date(string)`。以下两种写法行为不同：
+`published` / `updated` 在 `content.config.ts` 里经 `parseDateAsUtc()` 处理（无时区字符串补 `Z` 按 UTC 解析，YAML 裸日期已是 `Date` 对象则直通）。以下写法的解析结果：
 
 | 写法 | 结果 |
 | --- | --- |
-| `published: 2026-01-01 00:01:02` | YAML 解析为字符串，`new Date('2026-01-01 00:01:02')` 在本机时区可解析（项目全站采用此格式） |
-| `published: 2026-01-01` | YAML 可能解析为 `Date` 对象，`coerce.date()` 直接通过，时间为 `UTC 00:00`（东八区显示为 08:00） |
+| `published: 2026-01-01 00:01:02` | YAML 解析为字符串，补 `Z` 按 UTC 解析 → 时刻 `2026-01-01T00:01:02Z`（项目全站采用此格式；`new-post.js` 生成的即是 UTC） |
+| `published: 2026-01-01` | YAML 可能解析为 `Date` 对象，schema 直通，时刻为 `UTC 00:00`（等价于按 UTC 解析） |
 | `published: "2026/01/01"` | 依赖引擎实现，不推荐 |
 
-建议统一用 `YYYY-MM-DD HH:mm:ss`（不加引号），与 `scripts/new-post.js` 生成的模板一致。
+建议统一用 `YYYY-MM-DD HH:mm:ss`（不加引号），与 `scripts/new-post.js` 生成的模板格式一致。脚本生成的 `published` 取的是当前 UTC 时间（如东八区本地 08:01:02 会写成 `00:01:02`）；站内显示统一按 UTC（`formatDate` / `monthDay` 用 `dayjs.utc()` 格式化），所有访问者看到一致的时间，不随时区变化。
 
 ### 2.4 slug 自动生成规则
 
@@ -134,7 +134,7 @@ published: 2026-01-01 12:00:00
 | 已存在 | 打印 `already exists: <path>` 并 `exit 1`，不覆盖 |
 | 目录 | `mkdirSync(dir, { recursive: true })`，目录不存在会自动创建 |
 | `slug` | 留空，构建时由 `ensurePostSlugs` 自动填充 |
-| `published` | 取当前本地时间 |
+| `published` | 取当前 UTC 时间 |
 
 ### 方式二：手动创建
 

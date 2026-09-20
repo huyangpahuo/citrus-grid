@@ -54,7 +54,7 @@ const tagUrl = (tag: string) => localePath(lang, `/tags/${encodeURIComponent(tag
 const postPageUrl = new URL(postUrl(post), Astro.site).href
 const licenseDeedUrl = `https://creativecommons.org/licenses/by-nc-sa/4.0/deed.${lang}`
 const [licensePre = '', licensePost = ''] = t('post.copyright.licenseText').split('{link}')
-const postYear = post.data.published.getFullYear()
+const postYear = post.data.published.getUTCFullYear()
 ---
 
 <div>

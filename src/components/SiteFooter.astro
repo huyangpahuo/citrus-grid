@@ -11,7 +11,7 @@ interface Props {
 
 const { lang = defaultLang } = Astro.props
 const t = useTranslations(lang)
-const currentYear = new Date().getFullYear()
+const currentYear = new Date().getUTCFullYear()
 
 const publishedPosts = await getPublishedPosts()
 const earliest = publishedPosts.reduce<Date | null>(

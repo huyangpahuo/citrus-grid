@@ -1,6 +1,9 @@
 import { type CollectionEntry, getCollection } from 'astro:content'
 import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
 import readingTime from 'reading-time'
+
+dayjs.extend(utc)
 
 export type Post = CollectionEntry<'posts'>
 
@@ -35,9 +38,9 @@ export function readMinutes(post: Post): number {
   return Math.max(1, Math.ceil(wordCount(post) / 400))
 }
 
-// 日期格式化 YYYY-MM-DD HH:mm
+// 日期格式化 YYYY-MM-DD HH:mm（dayjs.utc：固定按 UTC 输出，不依赖运行环境时区）
 export function formatDate(date: Date): string {
-  return dayjs(date).format('YYYY-MM-DD HH:mm')
+  return dayjs.utc(date).format('YYYY-MM-DD HH:mm')
 }
 
 // 摘要：description 优先，否则从正文顺序提取 120 字
@@ -88,7 +91,7 @@ export function groupByTags(posts: Post[]): NameCount[] {
 export function groupByYear(posts: Post[]): YearGroup[] {
   const map = new Map<string, Post[]>()
   for (const p of posts) {
-    const year = String(dayjs(p.data.published).year())
+    const year = String(dayjs.utc(p.data.published).year())
     let items = map.get(year)
     if (!items) {
       items = []
@@ -101,7 +104,7 @@ export function groupByYear(posts: Post[]): YearGroup[] {
     .map(([year, items]) => ({ year, items }))
 }
 
-// 归档日期格式：MM-DD
+// 归档日期格式：MM-DD（dayjs.utc，按 UTC 输出）
 export function monthDay(date: Date): string {
-  return dayjs(date).format('MM-DD')
+  return dayjs.utc(date).format('MM-DD')
 }
