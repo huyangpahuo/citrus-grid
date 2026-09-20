@@ -140,6 +140,8 @@ draft: false
 - [x] 代码高亮（Prism 构建期高亮，客户端零 JS）与代码复制按钮
 - [x] 图片灯箱（PhotoSwipe）与 LQIP 渐变占位骨架
 - [x] 阅读统计（已预留接口）
+- [x] 文章相对链接自动转换
+- [x] 音乐播放器组件
 
 ## 插件
 
@@ -175,6 +177,12 @@ draft: false
 | [09-常见改造与排错.md](src/content/posts/all/09-常见改造与排错.md) | 任务式改造速查、FAQ、自检清单 |
 
 > 基于 `DeepSeek-V4.1-Flash` 检索生成+手动修改，仅供参考。
+
+## 贡献者
+
+<a href="https://github.com/rightdoor/citrus-grid/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=rightdoor/citrus-grid" />
+</a>
 
 ## License
 
