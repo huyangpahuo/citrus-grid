@@ -44,6 +44,8 @@ const posts = defineCollection({
     published: z.preprocess(parseDateAsUtc, z.date()),
     updated: z.preprocess(parseDateAsUtc, z.date()).optional(),
     draft: z.boolean().default(false),
+    series: z.string().trim().optional(),
+    series_order: z.number().int().min(1).optional(),
   }),
 })
 

@@ -86,3 +86,28 @@
     transform: translateY(0);
   }
 }
+
+.series-directory .series-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.series-directory.is-open .series-panel {
+  grid-template-rows: 1fr;
+}
+.series-directory .series-content-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+.series-chevron {
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.series-directory.is-open .series-chevron {
+  transform: rotate(180deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .series-directory .series-panel,
+  .series-chevron {
+    transition: none;
+  }
+}

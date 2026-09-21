@@ -4,8 +4,9 @@
     "archive": "アーカイブ",
     "categories": "カテゴリー",
     "tags": "タグ",
+    "series": "シリーズ",
     "friends": "リンク",
-    "about": "について"
+    "about": "概要"
   },
   "header": {
     "menu": "メニュー",
@@ -74,6 +75,17 @@
     "empty": "一致するタグがありません",
     "total": "全 {n} タグ"
   },
+  "series": {
+    "title": "シリーズ",
+    "subtitle": "同じテーマを順番に読む連載記事",
+    "part": "第 {n} 話",
+    "progress": "進捗 {current} / {total}",
+    "directory": "シリーズ目次",
+    "current": "この記事",
+    "empty": "シリーズはまだありません",
+    "total": "全 {n} シリーズ",
+    "postsUnit": "本"
+  },
   "friends": {
     "subtitle": "お世話になっている仲間たち。",
     "emptyTitle": "まだ友達がいません",
@@ -99,6 +111,7 @@
   "pageTitle": {
     "category": "カテゴリー：{name}",
     "tag": "タグ：{name}",
+    "series": "シリーズ：{name}",
     "about": "について"
   },
   "footer": {

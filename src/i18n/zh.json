@@ -4,6 +4,7 @@
     "archive": "归档",
     "categories": "分类",
     "tags": "标签",
+    "series": "系列",
     "friends": "友链",
     "about": "关于"
   },
@@ -74,6 +75,17 @@
     "empty": "没有匹配的标签",
     "total": "共 {n} 个标签"
   },
+  "series": {
+    "title": "系列",
+    "subtitle": "同一主题、需按顺序阅读的连载文章",
+    "part": "第 {n} 篇",
+    "progress": "进度 {current} / {total}",
+    "directory": "系列目录",
+    "current": "本篇",
+    "empty": "暂无系列",
+    "total": "共 {n} 个系列",
+    "postsUnit": "篇"
+  },
   "friends": {
     "subtitle": "常来常往的朋友，都在这里。",
     "emptyTitle": "这里还没有朋友",
@@ -99,6 +111,7 @@
   "pageTitle": {
     "category": "分类：{name}",
     "tag": "标签：{name}",
+    "series": "系列：{name}",
     "about": "关于"
   },
   "footer": {

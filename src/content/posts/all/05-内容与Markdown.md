@@ -5,6 +5,8 @@ index: 0
 description: "Markdown 渲染说明。"
 category: "二次开发"
 tags: ["二次开发"]
+series: "二次开发文档"
+series_order: 6
 published: 2026-09-16 19:08:29
 ---
 
@@ -37,6 +39,9 @@ index: 0
 description: "一句话摘要，会用于 SEO 与列表摘要"
 category: "示例"
 tags: [Markdown, 教程]
+# 连载（同一主题 3 篇以上、需按顺序阅读）才填写，零散文章留空：
+# series: "系列名"
+# series_order: 1
 published: 2026-01-01 00:01:02
 updated: 2026-01-01 00:01:03
 draft: false
@@ -54,6 +59,10 @@ draft: false
 | `published` | `Date` | 是 | — | 发布时间，建议格式 `YYYY-MM-DD HH:mm:ss`（无时区字符串按 UTC 解析） | `z.preprocess(parseDateAsUtc, z.date())`，非法日期报错 |
 | `updated` | `Date` | 否 | — | 更新时间。开启 `autoUpdatePostUpdated` 时由脚本按 mtime 写入 | `z.preprocess(parseDateAsUtc, z.date()).optional()` |
 | `draft` | `boolean` | 否 | `false` | 草稿。仅生产构建过滤，dev 下可见 | `boolean().default(false)` |
+| `series` | `string` | 否 | 无（不填=不连载） | 系列名。同一主题 ≥3 篇、需按顺序阅读时填写；零散文章不填 | `z.string().trim().optional()`，空串视为无系列 |
+| `series_order` | `number` | 否 | — | 系列内阅读顺序（从 1 开始），仅配合 `series` 使用 | `int().min(1)`；缺省按发布时间升序兜底排序 |
+
+> 系列使用规则：系列是与分类/标签互不影响的**可选**属性。判定标准——同一主题已有 **3 篇以上**且**需按顺序阅读**（如连载教程）才建系列，零散文章不填。有 `series` 的文章会出现在 `/series/` 系列页与独立的系列总览页；文章页会显示系列信息（头部一行 + 可折叠的系列目录），底部上一篇/下一篇在系列内按 `series_order` 相邻衔接。系列内排序规则：`series_order` 升序 → 发布时间升序兜底。
 
 ### 2.1 `normalizeList()` 的确切行为
 

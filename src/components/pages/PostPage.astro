@@ -10,16 +10,18 @@ import {
   iconSvg,
   mdiAccountOutline,
   mdiCalendarOutline,
+  mdiChevronDown,
   mdiChevronRight,
   mdiClockOutline,
   mdiClose,
   mdiEye,
   mdiFolderOutline,
+  mdiLayers,
   mdiTableOfContents,
   mdiTextRecognition,
   mdiUpdate,
 } from '@/lib/icons'
-import { formatDate, type Post, readMinutes, wordCount } from '@/lib/posts'
+import { formatDate, seriesOf, type Post, readMinutes, wordCount } from '@/lib/posts'
 import { siteConfig } from '@/site.config'
 
 interface Props {
@@ -27,9 +29,18 @@ interface Props {
   post: Post
   prevPost?: Post | null
   nextPost?: Post | null
+  seriesPosts?: Post[]
+  seriesIdx?: number
 }
 
-const { lang = defaultLang, post, prevPost = null, nextPost = null } = Astro.props
+const {
+  lang = defaultLang,
+  post,
+  prevPost = null,
+  nextPost = null,
+  seriesPosts = [],
+  seriesIdx = -1,
+} = Astro.props
 const t = useTranslations(lang)
 
 const date = formatDate(post.data.published)
@@ -38,6 +49,15 @@ const words = wordCount(post)
 const mins = readMinutes(post)
 const category = post.data.category
 const tags = post.data.tags
+
+const seriesName = seriesOf(post)
+const hasSeries = seriesPosts.length > 0 && seriesName !== null
+const inSeries = hasSeries && seriesIdx >= 0 && seriesIdx < seriesPosts.length
+const seriesPrev = inSeries && seriesIdx > 0 ? seriesPosts[seriesIdx - 1] : null
+const seriesNext = inSeries && seriesIdx < seriesPosts.length - 1 ? seriesPosts[seriesIdx + 1] : null
+const seriesUrl = hasSeries ? localePath(lang, `/series/${encodeURIComponent(seriesName!)}`) : ''
+const navPrev = hasSeries ? seriesPrev : prevPost
+const navNext = hasSeries ? seriesNext : nextPost
 
 const statsEnabled = Boolean(siteConfig.statsScript)
 const statsPath = `/posts/${post.id}`
@@ -123,6 +143,24 @@ const postYear = post.data.published.getUTCFullYear()
       }
     </div>
     {
+      hasSeries && (
+        <div class="mt-3 flex flex-wrap items-center justify-center gap-2">
+          <a
+            href={seriesUrl}
+            class="inline-flex min-w-0 items-center gap-1.5 rounded-[4px] border border-line-light bg-paper px-2.5 py-0.5 text-[0.82rem] text-ink-2 transition hover:border-accent hover:text-accent"
+          >
+            <Icon d={mdiLayers} class="shrink-0 text-sm text-accent" />
+            <span class="truncate">{seriesName}</span>
+            {inSeries && (
+              <span class="shrink-0 tabular-nums text-accent">
+                {t('series.progress', { current: seriesIdx + 1, total: seriesPosts.length })}
+              </span>
+            )}
+          </a>
+        </div>
+      )
+    }
+    {
       post.data.description && (
         <p class="mx-auto mt-4 max-w-[640px] text-[0.92rem] leading-relaxed text-ink-3">
           {post.data.description}
@@ -130,6 +168,56 @@ const postYear = post.data.published.getUTCFullYear()
       )
     }
   </header>
+
+  {
+    hasSeries && (
+      <section
+        id="series-directory"
+        class="series-directory mx-auto mb-8 max-w-[800px] rounded-[8px] border border-line-light bg-surface shadow-card"
+      >
+        <button
+          type="button"
+          id="series-toggle"
+          class="flex w-full cursor-pointer items-center justify-between gap-x-3 gap-y-1 p-4 text-left"
+          aria-expanded="false"
+          aria-controls="series-directory-content"
+        >
+          <span class="flex min-w-0 items-center gap-2 text-[0.9rem] font-semibold text-ink">
+            <Icon d={mdiLayers} class="shrink-0 text-lg text-accent" />
+            <span>{t('series.directory')}</span>
+          </span>
+          <Icon d={mdiChevronDown} class="series-chevron shrink-0 text-base text-ink-3" />
+        </button>
+        <div id="series-directory-content" class="series-panel">
+          <div class="series-content-inner">
+            <div class="px-4 pb-4">
+              <ul class="series-list flex list-none flex-col gap-0.5 p-0">
+                {seriesPosts.map((p, i) => (
+                  <li>
+                    <a
+                      href={postUrl(p)}
+                      aria-current={p.id === post.id ? 'page' : undefined}
+                      class={`flex items-center gap-3 rounded-[6px] px-2 py-1.5 text-[0.88rem] transition ${
+                        p.id === post.id
+                          ? 'bg-accent/10 text-accent'
+                          : 'text-ink-2 hover:bg-surface-hover hover:text-accent'
+                      }`}
+                    >
+                      <span class="w-6 shrink-0 text-right text-[0.78rem] tabular-nums text-ink-3">{i + 1}</span>
+                      <span class="min-w-0 flex-1 truncate">{p.data.title}</span>
+                      {p.id === post.id && (
+                        <span class="shrink-0 text-[0.72rem] font-medium text-accent">{t('series.current')}</span>
+                      )}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+    )
+  }
 
   <div class="relative mx-auto max-w-[800px]">
     <div class="post-content" data-pagefind-body>
@@ -190,10 +278,10 @@ const postYear = post.data.published.getUTCFullYear()
     </div>
     <nav class="flex justify-between gap-4 max-md:flex-col">
       {
-        prevPost ? (
-          <a href={postUrl(prevPost)} class="min-w-0 flex-1 truncate rounded-[8px] border border-line-light bg-surface px-4 py-3 text-left text-[0.9rem] text-ink-2 transition hover:border-accent hover:text-accent max-md:max-w-full">
+        navPrev ? (
+          <a href={postUrl(navPrev)} class="min-w-0 flex-1 truncate rounded-[8px] border border-line-light bg-surface px-4 py-3 text-left text-[0.9rem] text-ink-2 transition hover:border-accent hover:text-accent max-md:max-w-full">
             <span class="mb-0.5 block text-[0.78rem] text-ink-3">{t('post.prev')}</span>
-            <span class="block truncate">{prevPost.data.title}</span>
+            <span class="block truncate">{navPrev.data.title}</span>
           </a>
         ) : (
           <span class="min-w-0 flex-1 cursor-not-allowed rounded-[8px] border border-line-light bg-surface px-4 py-3 text-left text-[0.9rem] text-ink-2 opacity-40 max-md:max-w-full">
@@ -203,10 +291,10 @@ const postYear = post.data.published.getUTCFullYear()
         )
       }
       {
-        nextPost ? (
-          <a href={postUrl(nextPost)} class="min-w-0 flex-1 truncate rounded-[8px] border border-line-light bg-surface px-4 py-3 text-right text-[0.9rem] text-ink-2 transition hover:border-accent hover:text-accent max-md:max-w-full">
+        navNext ? (
+          <a href={postUrl(navNext)} class="min-w-0 flex-1 truncate rounded-[8px] border border-line-light bg-surface px-4 py-3 text-right text-[0.9rem] text-ink-2 transition hover:border-accent hover:text-accent max-md:max-w-full">
             <span class="mb-0.5 block text-[0.78rem] text-ink-3">{t('post.next')}</span>
-            <span class="block truncate">{nextPost.data.title}</span>
+            <span class="block truncate">{navNext.data.title}</span>
           </a>
         ) : (
           <span class="min-w-0 flex-1 cursor-not-allowed rounded-[8px] border border-line-light bg-surface px-4 py-3 text-right text-[0.9rem] text-ink-2 opacity-40 max-md:max-w-full">
@@ -661,6 +749,17 @@ const postYear = post.data.published.getUTCFullYear()
     tocModal?.addEventListener('click', (e) => {
       if (e.target === tocModal) closeTocModal()
     })
+
+    const seriesToggle = document.getElementById('series-toggle')
+    if (seriesToggle && !seriesToggle.dataset.bound) {
+      seriesToggle.dataset.bound = '1'
+      seriesToggle.addEventListener('click', () => {
+        const root = document.getElementById('series-directory')
+        const open = seriesToggle.getAttribute('aria-expanded') === 'true'
+        seriesToggle.setAttribute('aria-expanded', String(!open))
+        root?.classList.toggle('is-open', !open)
+      })
+    }
 
     document.querySelectorAll('#toc-affix').forEach((el) => {
       if (!el.closest('#swup-container')) el.remove()

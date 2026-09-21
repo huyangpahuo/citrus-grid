@@ -4,6 +4,7 @@
     "archive": "Archive",
     "categories": "Categories",
     "tags": "Tags",
+    "series": "Series",
     "friends": "Friends",
     "about": "About"
   },
@@ -74,6 +75,17 @@
     "empty": "No matching tags",
     "total": "{n} tags in total"
   },
+  "series": {
+    "title": "Series",
+    "subtitle": "Serialized posts on the same topic, best read in order",
+    "part": "Part {n}",
+    "progress": "{current} / {total}",
+    "directory": "Series contents",
+    "current": "You are here",
+    "empty": "No series yet",
+    "total": "{n} series in total",
+    "postsUnit": "posts"
+  },
   "friends": {
     "subtitle": "Friends worth visiting, all in one place.",
     "emptyTitle": "No friends here yet",
@@ -99,6 +111,7 @@
   "pageTitle": {
     "category": "Category: {name}",
     "tag": "Tag: {name}",
+    "series": "Series: {name}",
     "about": "About"
   },
   "footer": {

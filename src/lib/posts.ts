@@ -108,3 +108,42 @@ export function groupByYear(posts: Post[]): YearGroup[] {
 export function monthDay(date: Date): string {
   return dayjs.utc(date).format('MM-DD')
 }
+
+export interface SeriesItem {
+  name: string
+  posts: Post[]
+}
+
+// 文章所属系列名，无系列返回 null
+export function seriesOf(post: Post): string | null {
+  const name = (post.data.series ?? '').trim()
+  return name || null
+}
+
+// 系列内排序：series_order 升序，缺省按发布时间升序兜底
+export function sortSeriesPosts(posts: Post[]): Post[] {
+  return [...posts].sort(
+    (a, b) =>
+      (a.data.series_order ?? Number.MAX_SAFE_INTEGER) -
+        (b.data.series_order ?? Number.MAX_SAFE_INTEGER) ||
+      a.data.published.valueOf() - b.data.published.valueOf(),
+  )
+}
+
+// 全部系列（含文章，按系列名排序），仅为有 series 的文章分组
+export function getSeries(posts: Post[]): SeriesItem[] {
+  const map = new Map<string, Post[]>()
+  for (const p of posts) {
+    const name = seriesOf(p)
+    if (!name) continue
+    let arr = map.get(name)
+    if (!arr) {
+      arr = []
+      map.set(name, arr)
+    }
+    arr.push(p)
+  }
+  return [...map.entries()]
+    .map(([name, items]) => ({ name, posts: sortSeriesPosts(items) }))
+    .sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'))
+}

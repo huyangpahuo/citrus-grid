@@ -2,8 +2,8 @@
 import '@/styles/PostCard.css'
 import Icon from '@/components/Icon.astro'
 import { defaultLang, type Lang, localePath, useTranslations } from '@/i18n/ui'
-import { mdiAccountOutline, mdiCalendarOutline, mdiEye, mdiUpdate } from '@/lib/icons'
-import { excerptOf, formatDate, type Post, readMinutes, wordCount } from '@/lib/posts'
+import { mdiAccountOutline, mdiCalendarOutline, mdiEye, mdiLayers, mdiUpdate } from '@/lib/icons'
+import { excerptOf, formatDate, seriesOf, type Post, readMinutes, wordCount } from '@/lib/posts'
 import { siteConfig } from '@/site.config'
 
 interface Props {
@@ -25,6 +25,9 @@ const pinned = post.data.index > 0
 const postUrl = localePath(lang, `/posts/${post.id}`)
 const categoryUrl = localePath(lang, `/categories/${encodeURIComponent(category)}`)
 const tagUrl = (tag: string) => localePath(lang, `/tags/${encodeURIComponent(tag)}`)
+const seriesName = seriesOf(post)
+const seriesUrl = seriesName ? localePath(lang, `/series/${encodeURIComponent(seriesName)}`) : ''
+const seriesPart = post.data.series_order
 const statsEnabled = Boolean(siteConfig.statsScript)
 ---
 
@@ -37,6 +40,23 @@ const statsEnabled = Boolean(siteConfig.statsScript)
   <h2 class="mt-2.5 mb-1.5 font-serif text-[1.3rem] leading-snug font-bold">
     <a href={postUrl} class="text-ink transition hover:text-accent">{title}</a>
   </h2>
+
+  {
+    seriesName && (
+      <div class="mb-1.5 flex items-center gap-1.5">
+        <Icon d={mdiLayers} class="text-sm text-accent" />
+        <a
+          href={seriesUrl}
+          class="inline-flex items-center gap-1.5 rounded-[4px] border border-line-light bg-paper px-2 py-0.5 text-[0.78rem] text-ink-3 transition hover:border-accent hover:text-accent"
+        >
+          {seriesName}
+          {seriesPart != null && (
+            <span class="tabular-nums text-accent">{t('series.part', { n: seriesPart })}</span>
+          )}
+        </a>
+      </div>
+    )
+  }
 
   <div class="flex items-center gap-2 text-[0.82rem] text-ink-3">
     <span class="inline-flex items-center gap-1">
