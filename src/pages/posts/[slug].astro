@@ -2,13 +2,15 @@
 import PostPage from '@/components/pages/PostPage.astro'
 import { defaultLang } from '@/i18n/ui'
 import BaseLayout from '@/layouts/BaseLayout.astro'
-import { getPublishedPosts, seriesOf, sortSeriesPosts, type Post } from '@/lib/posts'
+import { getPublishedPosts, type Post, seriesOf, sortSeriesPosts } from '@/lib/posts'
 
 export async function getStaticPaths() {
   const posts = await getPublishedPosts()
   return posts.map((post: Post, idx: number) => {
     const seriesName = seriesOf(post)
-    const seriesPosts = seriesName ? sortSeriesPosts(posts.filter((p) => seriesOf(p) === seriesName)) : []
+    const seriesPosts = seriesName
+      ? sortSeriesPosts(posts.filter((p) => seriesOf(p) === seriesName))
+      : []
     const seriesIdx = seriesPosts.findIndex((p) => p.id === post.id)
     return {
       params: { slug: post.id },

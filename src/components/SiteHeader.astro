@@ -1,7 +1,16 @@
 ---
 import Icon from '@/components/Icon.astro'
 import { defaultLang, type Lang, localePath, useTranslations } from '@/i18n/ui'
-import { mdiMenu } from '@/lib/icons'
+import {
+  mdiAccountGroupOutline,
+  mdiAccountOutline,
+  mdiArchiveOutline,
+  mdiFolderOutline,
+  mdiHomeOutline,
+  mdiLayers,
+  mdiMenu,
+  mdiTagOutline,
+} from '@/lib/icons'
 import { siteConfig } from '@/site.config'
 
 interface Props {
@@ -12,13 +21,13 @@ const { lang = defaultLang } = Astro.props
 const t = useTranslations(lang)
 
 const navItems = [
-  { path: '/', label: t('nav.home') },
-  { path: '/archive', label: t('nav.archive') },
-  { path: '/categories', label: t('nav.categories') },
-  { path: '/tags', label: t('nav.tags') },
-  { path: '/series', label: t('nav.series') },
-  { path: '/friends', label: t('nav.friends') },
-  { path: '/about', label: t('nav.about') },
+  { path: '/', label: t('nav.home'), icon: mdiHomeOutline },
+  { path: '/archive', label: t('nav.archive'), icon: mdiArchiveOutline },
+  { path: '/categories', label: t('nav.categories'), icon: mdiFolderOutline },
+  { path: '/tags', label: t('nav.tags'), icon: mdiTagOutline },
+  { path: '/series', label: t('nav.series'), icon: mdiLayers },
+  { path: '/friends', label: t('nav.friends'), icon: mdiAccountGroupOutline },
+  { path: '/about', label: t('nav.about'), icon: mdiAccountOutline },
 ]
 
 const currentPath = Astro.url.pathname
@@ -45,24 +54,26 @@ function isActive(path: string): boolean {
       <span>{siteConfig.title}</span>
     </a>
 
-    <nav class="absolute left-1/2 top-0 flex h-full -translate-x-1/2 items-stretch gap-6 max-md:hidden">
+    <nav class="absolute left-1/2 top-0 flex h-full -translate-x-1/2 items-stretch max-md:hidden">
       {
         navItems.map((item) => (
           <a
             href={localePath(lang, item.path)}
             data-nav-path={localePath(lang, item.path)}
             class:list={[
-              'relative flex items-center text-[0.9rem] font-medium transition hover:text-accent',
+              'nav-item relative flex items-center text-[0.9rem] font-medium transition',
               isActive(item.path) ? 'text-accent' : 'text-ink-2',
             ]}
           >
-            {item.label}
-            <span
-              class:list={[
-                'absolute right-0 -bottom-px left-0 h-[2px] rounded-full bg-accent-deep transition-opacity duration-150',
-                { 'opacity-0': !isActive(item.path) },
-              ]}
-            />
+            <span class="nav-clip" aria-hidden="true">
+              <span class="nav-board" />
+            </span>
+            <span class="nav-content">
+              <span class="nav-icon">
+                <Icon d={item.icon} />
+              </span>
+              <span class="nav-label">{item.label}</span>
+            </span>
           </a>
         ))
       }
@@ -112,3 +123,94 @@ function isActive(path: string): boolean {
     if (details?.open && !details.contains(e.target as Node)) details.removeAttribute('open')
   })
 </script>
+
+<style>
+  .nav-item {
+    --nav-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .nav-clip {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  .nav-board {
+    position: absolute;
+    inset: 0;
+    background-color: var(--wp-accent);
+    transform: translateY(-101%);
+    transition: transform 0.5s var(--nav-ease);
+  }
+
+  .nav-content {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.9rem;
+  }
+
+  .nav-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: flex;
+    font-size: 1.2rem;
+    opacity: 1;
+    transform: translate(-50%, -50%);
+    transition:
+      opacity 0.2s ease 0.16s,
+      transform 0.2s var(--nav-ease) 0.16s;
+  }
+
+  .nav-label {
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition:
+      opacity 0.16s ease,
+      transform 0.16s var(--nav-ease);
+  }
+
+  .nav-item:hover,
+  .nav-item:focus-visible,
+  .nav-item.text-accent {
+    color: #fff;
+  }
+
+  .nav-item:hover .nav-board,
+  .nav-item:focus-visible .nav-board,
+  .nav-item.text-accent .nav-board {
+    transform: translateY(0);
+  }
+
+  .nav-item:hover .nav-icon,
+  .nav-item:focus-visible .nav-icon,
+  .nav-item.text-accent .nav-icon {
+    opacity: 0;
+    transform: translate(-50%, -50%) translateY(6px);
+    transition:
+      opacity 0.16s ease,
+      transform 0.16s var(--nav-ease);
+  }
+
+  .nav-item:hover .nav-label,
+  .nav-item:focus-visible .nav-label,
+  .nav-item.text-accent .nav-label {
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+      opacity 0.2s ease 0.16s,
+      transform 0.2s var(--nav-ease) 0.16s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-board,
+    .nav-icon,
+    .nav-label {
+      transition-duration: 0.01ms;
+      transition-delay: 0ms;
+    }
+  }
+</style>

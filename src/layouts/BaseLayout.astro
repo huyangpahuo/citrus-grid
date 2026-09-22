@@ -197,8 +197,6 @@ const jsonLd =
           a.classList.toggle('text-accent', active)
           a.classList.toggle('text-ink-2', !active)
           if (a.hasAttribute('data-nav-mobile')) a.classList.toggle('bg-surface-hover', active)
-          const bar = a.querySelector<HTMLElement>('span')
-          if (bar && bar.classList.contains('absolute')) bar.classList.toggle('opacity-0', !active)
         })
         document.querySelectorAll<HTMLDetailsElement>('header details[open]').forEach((d) => {
           d.removeAttribute('open')
