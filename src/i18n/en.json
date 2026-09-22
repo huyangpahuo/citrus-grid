@@ -101,7 +101,9 @@
     "pvUnit": "views",
     "pvLabel": "Total Views",
     "uvUnit": "visitors",
-    "uvLabel": "Unique Visitors"
+    "uvLabel": "Unique Visitors",
+    "showClock": "Show clock",
+    "showProfile": "Show profile"
   },
   "pagination": {
     "prev": "Previous",

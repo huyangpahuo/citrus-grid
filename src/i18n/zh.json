@@ -101,7 +101,9 @@
     "pvUnit": "次",
     "pvLabel": "累计访问",
     "uvUnit": "人",
-    "uvLabel": "独立访客"
+    "uvLabel": "独立访客",
+    "showClock": "显示时钟",
+    "showProfile": "显示个人简介"
   },
   "pagination": {
     "prev": "上一页",

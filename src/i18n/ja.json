@@ -101,7 +101,9 @@
     "pvUnit": "回",
     "pvLabel": "累計アクセス",
     "uvUnit": "人",
-    "uvLabel": "ユニーク訪問者"
+    "uvLabel": "ユニーク訪問者",
+    "showClock": "時計を表示",
+    "showProfile": "プロフィールを表示"
   },
   "pagination": {
     "prev": "前へ",

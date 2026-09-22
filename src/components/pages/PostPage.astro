@@ -56,7 +56,10 @@ const inSeries = hasSeries && seriesIdx >= 0 && seriesIdx < seriesPosts.length
 const seriesPrev = inSeries && seriesIdx > 0 ? seriesPosts[seriesIdx - 1] : null
 const seriesNext =
   inSeries && seriesIdx < seriesPosts.length - 1 ? seriesPosts[seriesIdx + 1] : null
-const seriesUrl = hasSeries ? localePath(lang, `/series/${encodeURIComponent(seriesName!)}`) : ''
+const seriesUrl =
+  hasSeries && seriesName !== null
+    ? localePath(lang, `/series/${encodeURIComponent(seriesName)}`)
+    : ''
 const navPrev = hasSeries ? seriesPrev : prevPost
 const navNext = hasSeries ? seriesNext : nextPost
 
