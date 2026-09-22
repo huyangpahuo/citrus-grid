@@ -129,6 +129,36 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+#grid-trail {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.grid-trail-cell {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  background-color: var(--wp-accent);
+  animation: grid-trail-out 0.65s ease-out forwards;
+}
+
+@keyframes grid-trail-out {
+  from {
+    opacity: 0.9;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grid-trail-cell {
+    animation-duration: 0.01ms;
+  }
+}
+
 a {
   color: var(--wp-link);
   text-decoration: none;
