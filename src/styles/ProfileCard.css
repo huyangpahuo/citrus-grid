@@ -7,11 +7,45 @@
   box-shadow: var(--wp-shadow-card);
 }
 
-.card-toggle {
+.card-preview {
+  --preview-size: 56px;
   position: absolute;
-  top: 6px;
-  right: 6px;
-  z-index: 2;
+  inset: -1px;
+  z-index: 3;
+  overflow: hidden;
+  border-radius: 12px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  clip-path: inset(
+    calc(var(--preview-y, 0px) - var(--preview-size) / 2)
+      calc(100% - var(--preview-x, 0px) - var(--preview-size) / 2)
+      calc(100% - var(--preview-y, 0px) - var(--preview-size) / 2)
+      calc(var(--preview-x, 0px) - var(--preview-size) / 2)
+  );
+}
+
+.card-preview.is-on {
+  opacity: 1;
+}
+
+.card.is-clock .card-preview {
+  opacity: 0;
+}
+
+.card-preview-clone {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-preview {
+    display: none;
+  }
+}
+
+.card-toggle {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -19,22 +53,43 @@
   height: 28px;
   padding: 0;
   border: 1px solid var(--wp-border-light);
-  border-radius: 8px;
-  background: var(--wp-bg);
+  border-top: none;
+  border-radius: 0;
+  background: var(--wp-surface);
   color: var(--wp-text-tertiary);
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1;
   cursor: pointer;
+  overflow: hidden;
   transition:
     color 0.2s ease,
-    border-color 0.2s ease,
-    background-color 0.2s ease;
+    border-color 0.2s ease;
 }
-.card-toggle:hover {
-  color: var(--wp-accent);
-  border-color: color-mix(in srgb, var(--wp-accent) 45%, transparent);
-  background: color-mix(in srgb, var(--wp-accent) 8%, var(--wp-bg));
+
+.card-toggle::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: var(--wp-accent);
+  transform: translateY(-101%);
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+.card-toggle > * {
+  position: relative;
+}
+
+.card-toggle:hover,
+.card-toggle:focus-visible {
+  color: #fff;
+  border-color: var(--wp-accent);
+}
+
+.card-toggle:hover::before,
+.card-toggle:focus-visible::before {
+  transform: translateY(0);
+}
+
 .card-toggle:focus-visible {
   outline: 2px solid var(--wp-accent);
   outline-offset: 2px;
@@ -86,7 +141,7 @@
 
 .clock-layer {
   container-type: inline-size;
-  --seg-h: clamp(36px, 10.4cqw, 120px);
+  --seg-h: clamp(36px, 10.75cqw, 140px);
   --seg-w: calc(var(--seg-h) * 0.625);
   --seg-t: calc(var(--seg-h) * 0.13);
   --seg-gap: calc(var(--seg-h) * 0.03);
@@ -99,7 +154,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 9px;
+  gap: 7px;
+  padding: 10px 16px;
   border-radius: 11px;
   background: linear-gradient(
     180deg,
@@ -336,60 +392,82 @@
   justify-content: center;
 }
 
-.row-social {
+.social-strip {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
   justify-content: center;
-  gap: 10px;
-  margin-top: 16px;
-  padding-top: 14px;
-  border-top: 1px solid var(--wp-border-light);
 }
 
 .social-btn {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
-  padding: 7px 18px;
-  border-radius: 60px;
-  font-size: 13px;
-  font-weight: 600;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1;
   text-decoration: none;
   color: var(--wp-text-secondary);
-  background: var(--wp-bg);
+  background: var(--wp-surface);
   border: 1px solid var(--wp-border-light);
-  box-shadow: var(--wp-shadow-card);
-  transition: all 0.2s ease;
-  white-space: nowrap;
+  border-top: none;
+  border-radius: 0;
+  overflow: hidden;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.social-strip > * + * {
+  border-left: none;
+}
+
+.social-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: var(--p-brand);
+  transform: translateY(-101%);
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.social-btn > * {
+  position: relative;
 }
 
 .social-btn svg {
-  font-size: 16px;
-  color: var(--wp-text-secondary);
-  transition: color 0.2s;
+  transition: color 0.2s ease;
 }
 
-.social-btn:hover {
-  background: var(--p-brand);
+.social-btn:hover,
+.social-btn:focus-visible {
+  color: #fff;
   border-color: var(--p-brand);
-  color: #fff;
-  box-shadow: 0 8px 20px color-mix(in srgb, var(--p-brand) 25%, transparent);
 }
 
-.social-btn:hover svg {
-  color: #fff;
+.social-btn:hover::before,
+.social-btn:focus-visible::before {
+  transform: translateY(0);
+}
+
+.social-btn:focus-visible {
+  outline: 2px solid var(--wp-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .social-btn::before,
+  .card-toggle::before {
+    transition-duration: 0.01ms;
+  }
 }
 
 @media (max-width: 640px) {
   .card {
     padding: 36px 16px 16px;
   }
-  .card-toggle {
-    top: 5px;
-    right: 5px;
-  }
+
   .clock-layer {
     gap: 7px;
   }
@@ -429,23 +507,8 @@
   .stat-divider {
     height: 28px;
   }
-  .social-btn {
-    padding: 6px 14px;
-    font-size: 12px;
-  }
 }
 
-@media (max-width: 400px) {
-  .social-btn span {
-    display: none;
-  }
-  .social-btn {
-    padding: 6px 10px;
-    min-width: 36px;
-  }
-}
-
-.card.is-clock .row-top,
-.card.is-clock .row-social {
+.card.is-clock .row-top {
   visibility: hidden;
 }

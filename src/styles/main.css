@@ -3,7 +3,8 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-:root {
+:root,
+.light {
   --wp-bg: #f5f4f0;
   --wp-surface: #ffffff;
   --wp-surface-hover: #f4eae2;

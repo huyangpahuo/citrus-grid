@@ -88,20 +88,9 @@ const segments = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
 const clockSlots = ['h1', 'h2', ':', 'm1', 'm2', ':', 's1', 's2']
 ---
 
-<div class="profile-card mx-auto max-w-[800px] pt-8 pb-4">
+<div class="profile-card mx-auto max-w-[800px] pb-4">
   <div class="card">
-    <button
-      type="button"
-      class="card-toggle"
-      data-clock-toggle
-      aria-pressed="false"
-      aria-label={t('profile.showClock')}
-      data-label-clock={t('profile.showClock')}
-      data-label-profile={t('profile.showProfile')}
-    >
-      <Icon d={mdiClockOutline} />
-    </button>
-
+    <div class="card-preview" data-card-preview aria-hidden="true"></div>
     <div class="row-top">
       <div class="user-area">
         <img class="avatar" src={siteConfig.avatar} alt={siteConfig.author} width="64" height="64" />
@@ -139,14 +128,14 @@ const clockSlots = ['h1', 'h2', ':', 'm1', 'm2', ':', 's1', 's2']
             <div class="stat-divider"></div>
             <div class="stat-item">
               <span class="stat-number">
-                <span data-stats="site-uv">-</span><span class="unit">{t('profile.uvUnit')}</span>
+                <span data-stats="site-uv" class="stat-live">-</span><span class="unit">{t('profile.uvUnit')}</span>
               </span>
               <span class="stat-label">{t('profile.uvLabel')}</span>
             </div>
             <div class="stat-divider"></div>
             <div class="stat-item">
               <span class="stat-number">
-                <span data-stats="site-pv">-</span><span class="unit">{t('profile.pvUnit')}</span>
+                <span data-stats="site-pv" class="stat-live">-</span><span class="unit">{t('profile.pvUnit')}</span>
               </span>
               <span class="stat-label">{t('profile.pvLabel')}</span>
             </div>
@@ -154,25 +143,6 @@ const clockSlots = ['h1', 'h2', ':', 'm1', 'm2', ':', 's1', 's2']
         )}
       </div>
     </div>
-
-    {
-      socials.length > 0 && (
-        <div class="row-social">
-          {socials.map((s) => (
-            <a
-              href={s.url}
-              class="social-btn"
-              style={`--p-brand:${s.brand}`}
-              target={isExternal(s.url) && !s.url.startsWith('mailto:') ? '_blank' : undefined}
-              rel={isExternal(s.url) && !s.url.startsWith('mailto:') ? 'noopener noreferrer' : undefined}
-            >
-              <Icon d={s.icon} />
-              <span>{s.label}</span>
-            </a>
-          ))}
-        </div>
-      )
-    }
 
     <div class="clock-layer" data-clock-layer data-locale={numberLocale} aria-hidden="true">
       <span class="clock-tz" data-clock-tz></span>
@@ -196,6 +166,34 @@ const clockSlots = ['h1', 'h2', ':', 'm1', 'm2', ':', 's1', 's2']
       </div>
       <span class="clock-date" data-clock-date></span>
     </div>
+  </div>
+
+  <div class="social-strip">
+    <button
+      type="button"
+      class="card-toggle"
+      data-clock-toggle
+      aria-pressed="false"
+      aria-label={t('profile.showClock')}
+      title={t('profile.showClock')}
+      data-label-clock={t('profile.showClock')}
+      data-label-profile={t('profile.showProfile')}
+    >
+      <Icon d={mdiClockOutline} />
+    </button>
+    {socials.map((s) => (
+      <a
+        href={s.url}
+        class="social-btn"
+        style={'--p-brand:' + s.brand}
+        aria-label={s.label}
+        title={s.label}
+        target={isExternal(s.url) && !s.url.startsWith('mailto:') ? '_blank' : undefined}
+        rel={isExternal(s.url) && !s.url.startsWith('mailto:') ? 'noopener noreferrer' : undefined}
+      >
+        <Icon d={s.icon} />
+      </a>
+    ))}
   </div>
 </div>
 
@@ -223,9 +221,10 @@ const clockSlots = ['h1', 'h2', ':', 'm1', 'm2', ':', 's1', 's2']
   const pad2 = (n: number) => String(n).padStart(2, '0')
 
   function initProfileCardClock() {
-    const card = document.querySelector<HTMLElement>('.profile-card .card')
+    const root = document.querySelector<HTMLElement>('.profile-card')
+    const card = root?.querySelector<HTMLElement>('.card')
     const layer = card?.querySelector<HTMLElement>('[data-clock-layer]')
-    const btn = card?.querySelector<HTMLButtonElement>('[data-clock-toggle]')
+    const btn = root?.querySelector<HTMLButtonElement>('[data-clock-toggle]')
     const tzEl = layer?.querySelector<HTMLElement>('[data-clock-tz]')
     const dateEl = layer?.querySelector<HTMLElement>('[data-clock-date]')
     if (!card || !layer || !btn || !tzEl || !dateEl) return
@@ -326,11 +325,10 @@ const clockSlots = ['h1', 'h2', ':', 'm1', 'm2', ':', 's1', 's2']
     let anim: Animation | null = null
 
     const syncButton = () => {
+      const label = (clockShown ? btn.dataset.labelProfile : btn.dataset.labelClock) || ''
       btn.setAttribute('aria-pressed', String(clockShown))
-      btn.setAttribute(
-        'aria-label',
-        (clockShown ? btn.dataset.labelProfile : btn.dataset.labelClock) || '',
-      )
+      btn.setAttribute('aria-label', label)
+      btn.setAttribute('title', label)
       btn.innerHTML = iconSvg(clockShown ? 'mdi-account-outline' : 'mdi-clock-outline')
     }
 
@@ -351,19 +349,171 @@ const clockSlots = ['h1', 'h2', ':', 'm1', 'm2', ':', 's1', 's2']
       const w = layer.offsetWidth
       const h = layer.offsetHeight
       const count = Math.max(1, Math.round(w / STRIP_W))
-      const running = layer.animate(buildFrames(count, w, h, !clockShown), {
-        duration: STRIP_DUR + (count - 1) * STAGGER,
-        fill: 'both',
-      })
+      const frames = buildFrames(count, w, h, !clockShown)
+      const options = { duration: STRIP_DUR + (count - 1) * STAGGER, fill: 'both' as const }
+      const running = layer.animate(frames, options)
+      const mirrored = [...card.querySelectorAll<HTMLElement>('.clock-layer')]
+        .filter((el) => el !== layer)
+        .map((el) => el.animate(frames, options))
       anim = running
       running.onfinish = () => {
         settle()
         running.cancel()
+        for (const m of mirrored) m.cancel()
+        card.dispatchEvent(new CustomEvent('profile-card-clock-settle'))
         anim = null
       }
     })
   }
 
+  function initProfileCardPreview() {
+    const card = document.querySelector<HTMLElement>('.profile-card .card')
+    const preview = card?.querySelector<HTMLElement>('[data-card-preview]')
+    if (!card || !preview) return
+
+    const reduceQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const textSel = '.stat-live, .clock-tz, .clock-date'
+    const classSel = '.seg-digit i, .clock-layer, .stats'
+    let frame = 0
+    let syncTimer = 0
+    let active = false
+    let pointerX = 0
+    let pointerY = 0
+    let originLeft = 0
+    let originTop = 0
+    let clone: HTMLElement | null = null
+
+    preview.inert = true
+
+    const build = () => {
+      const dark = document.documentElement.classList.contains('dark')
+      const next = card.cloneNode(true) as HTMLElement
+      for (const node of next.querySelectorAll('[data-card-preview]')) node.remove()
+      for (const node of next.querySelectorAll('[data-stats], [data-clock-toggle], [data-clock-layer]')) {
+        for (const name of [
+          'data-stats',
+          'data-clock-toggle',
+          'data-clock-layer',
+          'data-clock-tz',
+          'data-clock-date',
+          'data-locale',
+          'data-label-clock',
+          'data-label-profile',
+        ]) {
+          node.removeAttribute(name)
+        }
+      }
+      next.classList.add('card-preview-clone')
+      next.classList.add(dark ? 'light' : 'dark')
+      next.setAttribute('aria-hidden', 'true')
+      preview.replaceChildren(next)
+      clone = next
+    }
+
+    const measure = () => {
+      const rect = preview.getBoundingClientRect()
+      originLeft = rect.left
+      originTop = rect.top
+    }
+
+    const render = () => {
+      preview.style.setProperty('--preview-x', `${pointerX - originLeft}px`)
+      preview.style.setProperty('--preview-y', `${pointerY - originTop}px`)
+    }
+
+    const reset = () => {
+      active = false
+      preview.classList.remove('is-on')
+      window.clearInterval(syncTimer)
+      syncTimer = 0
+    }
+
+    const sync = () => {
+      const root = clone
+      if (!root) return
+      const dark = document.documentElement.classList.contains('dark')
+      const wantClass = card.className + ' card-preview-clone ' + (dark ? 'light' : 'dark')
+      if (root.className !== wantClass) root.className = wantClass
+
+      const srcOf = (sel: string) => [...card.querySelectorAll(sel)].filter((el) => !preview.contains(el))
+
+      const sText = srcOf(textSel)
+      const dText = root.querySelectorAll(textSel)
+      if (sText.length === dText.length) {
+        for (let i = 0; i < sText.length; i++) {
+          if (dText[i].textContent !== sText[i].textContent) dText[i].textContent = sText[i].textContent
+        }
+      }
+      const sCls = srcOf(classSel)
+      const dCls = root.querySelectorAll(classSel)
+      if (sCls.length === dCls.length) {
+        for (let i = 0; i < sCls.length; i++) {
+          if (dCls[i].className !== sCls[i].className) dCls[i].className = sCls[i].className
+        }
+      }
+    }
+
+    const move = (e: PointerEvent) => {
+      if (e.pointerType !== 'mouse' || reduceQuery.matches) return
+      if (card.classList.contains('is-clock')) {
+        if (active) reset()
+        return
+      }
+      pointerX = e.clientX
+      pointerY = e.clientY
+      if (!active) {
+        active = true
+        measure()
+        sync()
+        render()
+        preview.classList.add('is-on')
+        window.clearInterval(syncTimer)
+        syncTimer = window.setInterval(() => {
+          if (active) sync()
+        }, 250)
+        return
+      }
+      if (!frame) {
+        frame = requestAnimationFrame(() => {
+          frame = 0
+          if (!active) return
+          render()
+          sync()
+        })
+      }
+    }
+
+    const leave = (e: PointerEvent) => {
+      if (e.pointerType !== 'mouse') return
+      reset()
+    }
+
+    const refresh = () => {
+      if (!active) return
+      if (!preview.isConnected || !preview.offsetWidth) {
+        reset()
+        return
+      }
+      measure()
+      render()
+    }
+
+    build()
+    card.addEventListener('pointermove', move, { passive: true })
+    card.addEventListener('pointerleave', leave)
+    window.addEventListener('scroll', refresh, { passive: true })
+    window.addEventListener('resize', refresh)
+    document.addEventListener('theme-change', () => {
+      if (!active) return
+      sync()
+      render()
+    })
+    card.addEventListener('profile-card-clock-settle', () => {
+      if (active) sync()
+    })
+  }
+
   initProfileCardClock()
+  initProfileCardPreview()
 </script>
 
