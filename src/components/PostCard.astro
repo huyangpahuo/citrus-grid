@@ -32,13 +32,15 @@ const statsEnabled = Boolean(siteConfig.statsScript)
 ---
 
 <article
-  class="relative mt-3 rounded-[12px] border border-line-light bg-surface px-6 py-5 shadow-card transition duration-300 hover:-translate-y-0.5 hover:shadow-card-hover max-md:px-4 max-md:py-4"
+  data-post-card
+  class="relative mt-3 rounded-[12px] border border-line-light bg-surface px-6 py-5 shadow-card max-md:px-4 max-md:py-4"
 >
+  <div class="card-preview" data-card-preview aria-hidden="true"></div>
   {pinned && <span class="card-badge card-badge-left">{t('list.pinned')}</span>}
   <a href={categoryUrl} class="card-badge card-badge-right">{category}</a>
 
   <h2 class="mt-2.5 mb-1.5 font-serif text-[1.3rem] leading-snug font-bold">
-    <a href={postUrl} class="text-ink transition hover:text-accent">{title}</a>
+    <a href={postUrl} class="text-ink transition hover:text-accent" data-hover="title">{title}</a>
   </h2>
 
   {
@@ -48,6 +50,7 @@ const statsEnabled = Boolean(siteConfig.statsScript)
         <a
           href={seriesUrl}
           class="inline-flex items-center gap-1.5 rounded-[4px] border border-line-light bg-paper px-2 py-0.5 text-[0.78rem] text-ink-3 transition hover:border-accent hover:text-accent"
+          data-hover="series"
         >
           {seriesName}
           {seriesPart != null && (
@@ -80,6 +83,7 @@ const statsEnabled = Boolean(siteConfig.statsScript)
           <a
             href={tagUrl(tag)}
             class="rounded-[4px] bg-paper px-2 py-0.5 text-[0.75rem] text-ink-3 transition hover:bg-surface-hover hover:text-accent"
+            data-hover="tag"
           >
             #{tag}
           </a>
@@ -106,4 +110,150 @@ const statsEnabled = Boolean(siteConfig.statsScript)
   </div>
   {post.data.updated && <span class="card-badge card-btn-left"><Icon d={mdiUpdate} class="mr-1 text-[11px]" />{formatDate(post.data.updated)}</span>}
 </article>
+
+<script>
+  import { onPageLoad } from '@/lib/pageLifecycle'
+
+  const reduceQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+
+  function initPostCardPreview(card: HTMLElement) {
+    const preview = card.querySelector<HTMLElement>('[data-card-preview]')
+    if (!preview) return
+
+    const hoverSel = '[data-hover]'
+    let frame = 0
+    let syncTimer = 0
+    let active = false
+    let pointerX = 0
+    let pointerY = 0
+    let originLeft = 0
+    let originTop = 0
+    let clone: HTMLElement | null = null
+    let hoverIndex = -1
+    let cloneHoverables: HTMLElement[] = []
+
+    preview.inert = true
+
+    const hoverables = [...card.querySelectorAll<HTMLElement>(hoverSel)].filter(
+      (el) => !preview.contains(el),
+    )
+
+    const build = () => {
+      const dark = document.documentElement.classList.contains('dark')
+      const next = card.cloneNode(true) as HTMLElement
+      next.removeAttribute('data-post-card')
+      for (const node of next.querySelectorAll('[data-card-preview]')) node.remove()
+      for (const node of next.querySelectorAll('.card-badge, .card-actions')) node.remove()
+      next.classList.add('card-preview-clone')
+      next.classList.add(dark ? 'light' : 'dark')
+      next.setAttribute('aria-hidden', 'true')
+      preview.replaceChildren(next)
+      clone = next
+      cloneHoverables = [...next.querySelectorAll<HTMLElement>(hoverSel)]
+    }
+
+    const measure = () => {
+      const rect = preview.getBoundingClientRect()
+      originLeft = rect.left
+      originTop = rect.top
+    }
+
+    const render = () => {
+      preview.style.setProperty('--preview-x', `${pointerX - originLeft}px`)
+      preview.style.setProperty('--preview-y', `${pointerY - originTop}px`)
+    }
+
+    const reset = () => {
+      active = false
+      preview.classList.remove('is-on')
+      window.clearInterval(syncTimer)
+      syncTimer = 0
+      if (hoverIndex >= 0) cloneHoverables[hoverIndex]?.classList.remove('preview-hover')
+      hoverIndex = -1
+    }
+
+    const sync = () => {
+      const root = clone
+      if (!root) return
+      if (!card.isConnected) {
+        reset()
+        return
+      }
+      const dark = document.documentElement.classList.contains('dark')
+      const wantClass = card.className + ' card-preview-clone ' + (dark ? 'light' : 'dark')
+      if (root.className !== wantClass) root.className = wantClass
+    }
+
+    const syncHover = (target: EventTarget | null) => {
+      const hit = target instanceof Element ? target.closest<HTMLElement>(hoverSel) : null
+      const idx = hit && !preview.contains(hit) ? hoverables.indexOf(hit) : -1
+      if (idx === hoverIndex) return
+      if (hoverIndex >= 0) cloneHoverables[hoverIndex]?.classList.remove('preview-hover')
+      if (idx >= 0) cloneHoverables[idx]?.classList.add('preview-hover')
+      hoverIndex = idx
+    }
+
+    const move = (e: PointerEvent) => {
+      if (e.pointerType !== 'mouse' || reduceQuery.matches) return
+      pointerX = e.clientX
+      pointerY = e.clientY
+      if (!active) {
+        active = true
+        measure()
+        sync()
+        render()
+        syncHover(e.target)
+        preview.classList.add('is-on')
+        window.clearInterval(syncTimer)
+        syncTimer = window.setInterval(() => {
+          if (active) sync()
+        }, 250)
+        return
+      }
+      syncHover(e.target)
+      if (!frame) {
+        frame = requestAnimationFrame(() => {
+          frame = 0
+          if (!active) return
+          render()
+          sync()
+        })
+      }
+    }
+
+    const leave = (e: PointerEvent) => {
+      if (e.pointerType !== 'mouse') return
+      reset()
+    }
+
+    const refresh = () => {
+      if (!active) return
+      if (!preview.isConnected || !preview.offsetWidth) {
+        reset()
+        return
+      }
+      measure()
+      render()
+    }
+
+    build()
+    card.addEventListener('pointermove', move, { passive: true })
+    card.addEventListener('pointerleave', leave)
+    window.addEventListener('scroll', refresh, { passive: true })
+    window.addEventListener('resize', refresh)
+    document.addEventListener('theme-change', () => {
+      if (!active) return
+      sync()
+      render()
+    })
+  }
+
+  onPageLoad(() => {
+    document.querySelectorAll<HTMLElement>('article[data-post-card]').forEach((card) => {
+      if (card.dataset.previewInit) return
+      card.dataset.previewInit = '1'
+      initPostCardPreview(card)
+    })
+  })
+</script>
 

@@ -4,7 +4,7 @@ article {
 .card-badge {
   position: absolute;
   top: -5px;
-  z-index: 2;
+  z-index: 4;
   display: inline-flex;
   align-items: center;
   height: 30px;
@@ -44,7 +44,7 @@ article {
   top: auto;
   right: -5px;
   bottom: -5px;
-  z-index: 2;
+  z-index: 4;
   display: flex;
   align-items: stretch;
   gap: 4px;
@@ -104,3 +104,14 @@ article {
     bottom: -4px;
   }
 }
+
+.card-preview-clone [data-hover].preview-hover {
+  color: var(--wp-accent);
+}
+.card-preview-clone [data-hover='series'].preview-hover {
+  border-color: var(--wp-accent);
+}
+.card-preview-clone [data-hover='tag'].preview-hover {
+  background-color: var(--wp-surface-hover);
+}
+

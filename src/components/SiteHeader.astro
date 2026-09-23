@@ -131,8 +131,12 @@ function isActive(path: string): boolean {
 
   .nav-clip {
     position: absolute;
-    inset: 0;
+    top: 0;
+    left: 50%;
+    width: 60px;
+    height: 60px;
     overflow: hidden;
+    transform: translateX(-50%);
   }
 
   .nav-board {

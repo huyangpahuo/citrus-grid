@@ -7,57 +7,20 @@
   box-shadow: var(--wp-shadow-card);
 }
 
-.card-preview {
-  --preview-size: 56px;
-  position: absolute;
-  inset: -1px;
-  z-index: 3;
-  overflow: hidden;
-  border-radius: 12px;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.18s ease;
-  clip-path: inset(
-    calc(var(--preview-y, 0px) - var(--preview-size) / 2)
-      calc(100% - var(--preview-x, 0px) - var(--preview-size) / 2)
-      calc(100% - var(--preview-y, 0px) - var(--preview-size) / 2)
-      calc(var(--preview-x, 0px) - var(--preview-size) / 2)
-  );
-}
-
-.card-preview.is-on {
-  opacity: 1;
-}
-
-.card.is-clock .card-preview {
-  opacity: 0;
-}
-
-.card-preview-clone {
-  box-sizing: border-box;
-  width: 100%;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .card-preview {
-    display: none;
-  }
-}
-
 .card-toggle {
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 42px;
+  height: 42px;
   padding: 0;
   border: 1px solid var(--wp-border-light);
   border-top: none;
   border-radius: 0;
   background: var(--wp-surface);
   color: var(--wp-text-tertiary);
-  font-size: 14px;
+  font-size: 21px;
   line-height: 1;
   cursor: pointer;
   overflow: hidden;
@@ -402,10 +365,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 42px;
+  height: 42px;
   padding: 0;
-  font-size: 14px;
+  font-size: 21px;
   line-height: 1;
   text-decoration: none;
   color: var(--wp-text-secondary);

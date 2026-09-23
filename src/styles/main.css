@@ -234,6 +234,40 @@ html.is-theme-transitioning *::after {
   contain: layout style;
 }
 
+.card-preview {
+  --preview-size: 56px;
+  position: absolute;
+  inset: -1px;
+  z-index: 3;
+  overflow: hidden;
+  border-radius: 12px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  clip-path: inset(
+    calc(var(--preview-y, 0px) - var(--preview-size) / 2)
+      calc(100% - var(--preview-x, 0px) - var(--preview-size) / 2)
+      calc(100% - var(--preview-y, 0px) - var(--preview-size) / 2)
+      calc(var(--preview-x, 0px) - var(--preview-size) / 2)
+  );
+}
+
+.card-preview.is-on {
+  opacity: 1;
+}
+
+.card-preview-clone {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-preview {
+    display: none;
+  }
+}
+
 .wp-gradient-bg {
   background: var(--wp-gradient-pink);
   color: #fff;

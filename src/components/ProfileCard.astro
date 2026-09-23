@@ -455,10 +455,6 @@ const clockSlots = ['h1', 'h2', ':', 'm1', 'm2', ':', 's1', 's2']
 
     const move = (e: PointerEvent) => {
       if (e.pointerType !== 'mouse' || reduceQuery.matches) return
-      if (card.classList.contains('is-clock')) {
-        if (active) reset()
-        return
-      }
       pointerX = e.clientX
       pointerY = e.clientY
       if (!active) {
