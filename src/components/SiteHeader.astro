@@ -20,14 +20,20 @@ interface Props {
 const { lang = defaultLang } = Astro.props
 const t = useTranslations(lang)
 
+const NAV_DEFS: Record<string, { key: string; icon: string }> = {
+  '/archive': { key: 'nav.archive', icon: mdiArchiveOutline },
+  '/categories': { key: 'nav.categories', icon: mdiFolderOutline },
+  '/tags': { key: 'nav.tags', icon: mdiTagOutline },
+  '/series': { key: 'nav.series', icon: mdiLayers },
+  '/friends': { key: 'nav.friends', icon: mdiAccountGroupOutline },
+  '/about': { key: 'nav.about', icon: mdiAccountOutline },
+}
+
 const navItems = [
   { path: '/', label: t('nav.home'), icon: mdiHomeOutline },
-  { path: '/archive', label: t('nav.archive'), icon: mdiArchiveOutline },
-  { path: '/categories', label: t('nav.categories'), icon: mdiFolderOutline },
-  { path: '/tags', label: t('nav.tags'), icon: mdiTagOutline },
-  { path: '/series', label: t('nav.series'), icon: mdiLayers },
-  { path: '/friends', label: t('nav.friends'), icon: mdiAccountGroupOutline },
-  { path: '/about', label: t('nav.about'), icon: mdiAccountOutline },
+  ...[...new Set(siteConfig.nav)]
+    .filter((path) => path !== '/' && path in NAV_DEFS)
+    .map((path) => ({ path, label: t(NAV_DEFS[path].key), icon: NAV_DEFS[path].icon })),
 ]
 
 const currentPath = Astro.url.pathname

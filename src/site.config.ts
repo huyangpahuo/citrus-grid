@@ -52,6 +52,11 @@ export const siteConfig = {
   // 首页每页文章数 Posts per page on the home page
   postsPerPage: 10,
 
+  // 顶栏导航项，按数组顺序显示；首页 '/' 固定在第一项、不可移除，无需在此配置
+  // Header nav items, shown in array order. Home '/' is pinned first and must not be listed here
+  // 可选 Available: '/archive' 、 '/categories' 、 '/tags' 、 '/series' 、 '/friends' 、 '/about'
+  nav: ['/archive', '/categories', '/tags', '/series', '/friends', '/about'],
+
   // 个人名片社交按钮，改为空数组 [] 则不显示社交按钮
   // Social buttons on the profile card. Set to an empty array [] to hide them
   // 支持 Supported: github 、 twitter 、 linkedin 、 youtube 、 instagram 、 facebook 、 devto 、 medium 、 rss 、 email 、 website

@@ -49,12 +49,12 @@ const statsEnabled = Boolean(siteConfig.statsScript)
         <Icon d={mdiLayers} class="text-sm text-accent" />
         <a
           href={seriesUrl}
-          class="inline-flex items-center gap-1.5 rounded-[4px] border border-line-light bg-paper px-2 py-0.5 text-[0.78rem] text-ink-3 transition hover:border-accent hover:text-accent"
+          class="inline-flex items-center gap-1.5 rounded-[4px] border border-line-light bg-paper px-2 py-0.5 text-[0.78rem] text-ink-2 transition hover:border-accent hover:text-accent"
           data-hover="series"
         >
           {seriesName}
           {seriesPart != null && (
-            <span class="tabular-nums text-accent">{t('series.part', { n: seriesPart })}</span>
+            <span class="tabular-nums text-accent-deep dark:text-accent">{t('series.part', { n: seriesPart })}</span>
           )}
         </a>
       </div>

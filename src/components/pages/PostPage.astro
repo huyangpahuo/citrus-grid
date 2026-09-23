@@ -156,7 +156,7 @@ const postYear = post.data.published.getUTCFullYear()
             <Icon d={mdiLayers} class="shrink-0 text-sm text-accent" />
             <span class="truncate">{seriesName}</span>
             {inSeries && (
-              <span class="shrink-0 tabular-nums text-accent">
+              <span class="shrink-0 tabular-nums text-accent-deep dark:text-accent">
                 {t('series.progress', { current: seriesIdx + 1, total: seriesPosts.length })}
               </span>
             )}
