@@ -108,10 +108,9 @@ article {
 .card-preview-clone [data-hover].preview-hover {
   color: var(--wp-accent);
 }
-.card-preview-clone [data-hover='series'].preview-hover {
+.card-preview-clone [data-hover="series"].preview-hover {
   border-color: var(--wp-accent);
 }
-.card-preview-clone [data-hover='tag'].preview-hover {
+.card-preview-clone [data-hover="tag"].preview-hover {
   background-color: var(--wp-surface-hover);
 }
-

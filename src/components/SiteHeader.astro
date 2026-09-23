@@ -128,6 +128,27 @@ function isActive(path: string): boolean {
     const details = document.querySelector<HTMLDetailsElement>('header details')
     if (details?.open && !details.contains(e.target as Node)) details.removeAttribute('open')
   })
+
+  function fitNavLabels() {
+    const MAX_LABEL_WIDTH = 56
+    const labels = [...document.querySelectorAll<HTMLElement>('header .nav-label')]
+    for (const el of labels) {
+      el.style.fontSize = ''
+      el.closest('.nav-item')?.classList.remove('nav-compact')
+    }
+    if (labels.length === 0) return
+    const base = parseFloat(getComputedStyle(labels[0]).fontSize)
+    const maxWidth = Math.max(...labels.map((el) => el.getBoundingClientRect().width))
+    if (maxWidth > MAX_LABEL_WIDTH) {
+      const size = `${Math.max(10, (base * MAX_LABEL_WIDTH) / maxWidth)}px`
+      for (const el of labels) {
+        el.style.fontSize = size
+        el.closest('.nav-item')?.classList.add('nav-compact')
+      }
+    }
+  }
+  fitNavLabels()
+  document.fonts?.ready.then(fitNavLabels)
 </script>
 
 <style>
@@ -159,6 +180,11 @@ function isActive(path: string): boolean {
     align-items: center;
     justify-content: center;
     padding: 0 0.9rem;
+  }
+
+  .nav-item.nav-compact .nav-content {
+    width: 60px;
+    padding: 0;
   }
 
   .nav-icon {
